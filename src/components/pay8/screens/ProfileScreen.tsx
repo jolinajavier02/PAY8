@@ -2,10 +2,9 @@
 
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
-import { formatCurrency } from "@/lib/pay8-utils";
 import {
   BadgeCheck, ChevronRight, Fingerprint, HelpCircle, KeyRound, Link2, LogOut,
-  Bell, Settings, ShieldCheck, User, Wallet, Banknote,
+  Bell, Settings, ShieldCheck, User, Banknote, FileText, ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ScreenId } from "@/lib/types";
@@ -13,7 +12,6 @@ import type { ScreenId } from "@/lib/types";
 export function ProfileScreen() {
   const profile = usePay8((s) => s.profile);
   const verification = usePay8((s) => s.verification);
-  const balance = usePay8((s) => s.balance);
   const logout = usePay8((s) => s.logout);
   const resetAll = usePay8((s) => s.resetAll);
   const navigate = usePay8Ui((s) => s.navigate);
@@ -22,11 +20,6 @@ export function ProfileScreen() {
   const initials = `${profile.firstName[0] ?? ""}${profile.lastName[0] ?? ""}`;
   const level = verification.level;
   const verified = verification.status === "verified";
-
-  const stats = [
-    { label: "Balance", value: formatCurrency(balance), icon: Wallet },
-    { label: "Verified", value: verified ? "Yes" : "Pending", icon: ShieldCheck },
-  ];
 
   const menuGroups: Array<{
     title: string;
@@ -47,6 +40,8 @@ export function ProfileScreen() {
         { label: "Change PIN", icon: KeyRound, onClick: () => showToast({ title: "Change PIN (mock)" }) },
         { label: "Biometrics", sub: "Fingerprint enabled", icon: Fingerprint, onClick: () => showToast({ title: "Biometrics enabled" }) },
         { label: "Linked bank accounts", sub: "1 account · BPI", icon: Link2, screen: "settings" },
+        { label: "Bank certificate", sub: "Request account certification", icon: FileText, onClick: () => showToast({ title: "Bank certificate (mock)" }) },
+        { label: "Bank statement", sub: "Download monthly statements", icon: ScrollText, onClick: () => showToast({ title: "Bank statement (mock)" }) },
         { label: "Transaction history", sub: "All activity", icon: Banknote, screen: "transactions" },
       ],
     },
@@ -99,16 +94,6 @@ export function ProfileScreen() {
             <div className="text-xs text-muted-foreground">{profile.email}</div>
             <div className="mt-0.5 text-xs text-muted-foreground">{profile.mobile}</div>
           </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {stats.map((s) => (
-            <div key={s.label} className="rounded-2xl border border-border bg-background p-3 text-center">
-              <s.icon className="mx-auto h-4 w-4 text-primary" strokeWidth={2.2} />
-              <div className="mt-1 text-xs font-semibold text-foreground">{s.value}</div>
-              <div className="text-[10px] text-muted-foreground">{s.label}</div>
-            </div>
-          ))}
         </div>
 
         <button

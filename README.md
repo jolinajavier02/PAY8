@@ -45,11 +45,26 @@ Built with Next.js 16, TypeScript, Tailwind CSS 4, and shadcn/ui. Ships as a PWA
 
 ## Local development
 
+If this is your first time opening the app:
+
 ```bash
-bun install        # install dependencies
-bun run dev        # start dev server on http://localhost:3000
-bun run lint       # ESLint check
-bun run db:push    # apply Prisma schema to local SQLite
+npm install        # install dependencies, only needed the first time
+npm run dev        # start the app
+```
+
+Then open this in your browser:
+
+```text
+http://localhost:3001
+```
+
+Keep the terminal running while you preview the app. If you close the terminal or stop the command, the browser page will stop working until you run `npm run dev` again.
+
+Other useful commands:
+
+```bash
+npm run lint       # ESLint check
+npm run db:push    # apply Prisma schema to local SQLite
 ```
 
 ### Default demo credentials

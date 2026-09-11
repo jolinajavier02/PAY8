@@ -48,7 +48,7 @@ export function InboxScreen() {
       {/* Recent transactions (sent + received) */}
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent transactions</h2>
-        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+        <div className="space-y-2">
           {recentTxLogs.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
               No transactions yet.
@@ -61,7 +61,7 @@ export function InboxScreen() {
                   key={t.id}
                   onClick={() => navigate("transactions")}
                   className={cn(
-                    "min-w-[260px] rounded-2xl border bg-card p-3 text-left pay8-elev-1",
+                    "w-full rounded-2xl border bg-card p-3 text-left pay8-elev-1",
                     isReceive ? "border-accent/20" : "border-border",
                   )}
                 >

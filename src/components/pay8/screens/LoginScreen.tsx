@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronDown, HelpCircle, KeyRound, Phone, RefreshCw, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronDown, HelpCircle, KeyRound, RefreshCw, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Country = "PH" | "JP" | "IN";
@@ -108,13 +108,13 @@ export function LoginScreen() {
                   <div className="mt-2 flex items-center gap-2">
                     <button
                       onClick={() => setShowCountryMenu((v) => !v)}
-                      className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-3 text-sm font-medium hover:bg-muted"
+                      className="flex items-center gap-1.5 rounded-xl border border-primary/20 bg-background px-3 py-3 text-sm font-medium text-primary hover:border-primary/50 hover:bg-primary/5"
                     >
                       <span className="text-base">{COUNTRIES[country].flag}</span>
                       <span>{COUNTRIES[country].dial}</span>
-                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                      <ChevronDown className="h-3 w-3 text-primary" />
                     </button>
-                    <div className="relative flex-1 flex items-center rounded-xl border border-border bg-background px-3 py-3">
+                    <div className="relative flex-1 flex items-center rounded-xl border border-primary/20 bg-background px-3 py-3 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/10">
                       <input
                         inputMode="tel"
                         placeholder={COUNTRIES[country].placeholder}
@@ -156,10 +156,10 @@ export function LoginScreen() {
                     "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all",
                     canSubmitPhone
                       ? "bg-primary text-primary-foreground pay8-elev-1 active:scale-[0.99]"
-                      : "cursor-not-allowed bg-muted text-muted-foreground",
+                      : "cursor-not-allowed bg-primary/45 text-primary-foreground/80",
                   )}
                 >
-                  <Phone className="h-4 w-4" /> Continue
+                  Continue
                 </button>
 
                 <div className="flex items-center justify-between pt-2 text-xs">
@@ -204,7 +204,7 @@ export function LoginScreen() {
                     "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all",
                     canSubmitOtp
                       ? "bg-primary text-primary-foreground pay8-elev-1 active:scale-[0.99]"
-                      : "cursor-not-allowed bg-muted text-muted-foreground",
+                      : "cursor-not-allowed bg-primary/45 text-primary-foreground/80",
                   )}
                 >
                   <ShieldCheck className="h-4 w-4" /> Verify
@@ -246,7 +246,7 @@ export function LoginScreen() {
                     "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all",
                     canSubmitPin
                       ? "bg-primary text-primary-foreground pay8-elev-1 active:scale-[0.99]"
-                      : "cursor-not-allowed bg-muted text-muted-foreground",
+                      : "cursor-not-allowed bg-primary/45 text-primary-foreground/80",
                   )}
                 >
                   Continue <ArrowRight className="h-4 w-4" />
@@ -278,7 +278,7 @@ export function LoginScreen() {
                     "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all",
                     canConfirmPin
                       ? "bg-primary text-primary-foreground pay8-elev-1 active:scale-[0.99]"
-                      : "cursor-not-allowed bg-muted text-muted-foreground",
+                      : "cursor-not-allowed bg-primary/45 text-primary-foreground/80",
                   )}
                 >
                   <ShieldCheck className="h-4 w-4" /> Complete registration

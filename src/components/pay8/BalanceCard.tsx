@@ -3,33 +3,16 @@
 import { useState } from "react";
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
-import { Eye, EyeOff, ShieldCheck, ShieldAlert, ArrowUpRight, Plus, QrCode } from "lucide-react";
+import { ArrowUpRight, Banknote, Eye, EyeOff, Plus } from "lucide-react";
 import { formatCurrency } from "@/lib/pay8-utils";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import type { TransactionType } from "@/lib/types";
 
 export function BalanceCard() {
   const balance = usePay8((s) => s.balance);
   const profile = usePay8((s) => s.profile);
-  const verification = usePay8((s) => s.verification);
   const navigate = usePay8Ui((s) => s.navigate);
   const [hidden, setHidden] = useState(false);
-
-  const levelLabel =
-    verification.level === "basic"
-      ? "Basic"
-      : verification.level === "verified"
-        ? "Verified"
-        : verification.level === "premium"
-          ? "Premium"
-          : "Basic";
-  const verifiedIcon =
-    verification.status === "verified" ? (
-      <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-    ) : (
-      <ShieldAlert className="h-3.5 w-3.5 text-amber-300" />
-    );
 
   return (
     <motion.div
@@ -43,21 +26,7 @@ export function BalanceCard() {
       <div className="absolute -left-10 -bottom-14 h-32 w-32 rounded-full bg-amber-400/15 blur-3xl" />
 
       <div className="relative rounded-3xl p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 font-bold text-sm text-white">8</div>
-            <div className="text-xs font-medium uppercase tracking-wider text-white/80">PAY8 Wallet</div>
-          </div>
-          <button
-            onClick={() => navigate("profile")}
-            className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[10px] font-semibold uppercase text-white"
-          >
-            {verifiedIcon}
-            {levelLabel}
-          </button>
-        </div>
-
-        <div className="mt-6">
+        <div>
           <div className="flex items-center gap-2 text-xs text-white/70">
             <span>Available balance</span>
             <button onClick={() => setHidden((h) => !h)} className="rounded-full p-0.5 hover:bg-white/10">
@@ -71,9 +40,9 @@ export function BalanceCard() {
         </div>
 
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <QuickAction label="Cash In" icon={Plus} onClick={() => navigate("cashin")} />
           <QuickAction label="Send" icon={ArrowUpRight} onClick={() => navigate("send")} />
-          <QuickAction label="QR" icon={QrCode} onClick={() => navigate("qrhub")} />
+          <QuickAction label="Cash In" icon={Plus} onClick={() => navigate("cashin")} />
+          <QuickAction label="Transfer" icon={Banknote} onClick={() => navigate("bank")} />
         </div>
       </div>
     </motion.div>

@@ -57,8 +57,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
-        <Toaster />
+        <div className="pay8-device-host">
+          <div className="pay8-device-shell" data-pay8-device>
+            {children}
+            <Toaster />
+          </div>
+        </div>
       </body>
     </html>
   );

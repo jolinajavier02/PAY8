@@ -56,11 +56,11 @@ export function AppShell({ children }: AppShellProps) {
   const canGoBack = screenStack.length > 1 && !isTabScreen;
 
   return (
-    <div className="relative min-h-screen w-full bg-background text-foreground">
+    <div className="relative h-full w-full bg-background text-foreground">
       <div className="pointer-events-none fixed inset-0 pay8-gradient-mesh" />
 
       {/* Phone-frame container — tablet & desktop center the phone; mobile is full screen */}
-      <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col">
+      <div className="relative mx-auto flex h-full min-h-0 w-full max-w-md flex-col">
         {!isFullScreen && (
           <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-md">
             {canGoBack && (
@@ -92,7 +92,7 @@ export function AppShell({ children }: AppShellProps) {
           </header>
         )}
 
-        <main className={cn("flex-1 overflow-y-auto", isTabScreen ? "pb-24" : "pb-6")}>
+        <main className={cn("min-h-0 flex-1 overflow-y-auto", isTabScreen ? "pb-24" : "pb-6")}>
           <AnimatePresence mode="wait">
             <motion.div
               key={screen}
