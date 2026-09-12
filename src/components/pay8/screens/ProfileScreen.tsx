@@ -9,6 +9,13 @@ import {
 import { cn } from "@/lib/utils";
 import type { ScreenId } from "@/lib/types";
 
+const AVATAR_STYLES: Record<string, { label: string; tone: string; icon: string }> = {
+  simple_girl: { label: "Simple girl", tone: "bg-rose-50 text-rose-700 border-rose-100", icon: "SG" },
+  simple_boy: { label: "Simple boy", tone: "bg-sky-50 text-sky-700 border-sky-100", icon: "SB" },
+  girly: { label: "Girly", tone: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-100", icon: "GR" },
+  boyish: { label: "Boyish", tone: "bg-indigo-50 text-indigo-700 border-indigo-100", icon: "BY" },
+};
+
 export function ProfileScreen() {
   const profile = usePay8((s) => s.profile);
   const verification = usePay8((s) => s.verification);
@@ -17,9 +24,9 @@ export function ProfileScreen() {
   const navigate = usePay8Ui((s) => s.navigate);
   const showToast = usePay8Ui((s) => s.showToast);
 
-  const initials = `${profile.firstName[0] ?? ""}${profile.lastName[0] ?? ""}`;
   const level = verification.level;
   const verified = verification.status === "verified";
+  const avatar = AVATAR_STYLES[profile.avatarCharacter ?? "simple_boy"];
 
   const menuGroups: Array<{
     title: string;
@@ -83,7 +90,9 @@ export function ProfileScreen() {
       {/* Header card */}
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 pay8-elev-1">
         <div className="flex items-center gap-4">
-          <img src="/logo.svg" alt="PAY8 logo" className="h-16 w-16 rounded-full object-contain pay8-elev-1" />
+          <div className={cn("flex h-16 w-16 shrink-0 items-center justify-center rounded-full border text-lg font-black pay8-elev-1", avatar.tone)}>
+            {avatar.icon}
+          </div>
           <div className="flex-1">
             <div className="flex items-center gap-1.5">
               <h2 className="text-lg font-bold text-foreground">{profile.firstName} {profile.lastName}</h2>
@@ -91,6 +100,7 @@ export function ProfileScreen() {
             </div>
             <div className="text-xs text-muted-foreground">{profile.email}</div>
             <div className="mt-0.5 text-xs text-muted-foreground">{profile.mobile}</div>
+            <div className="mt-1 text-[10px] text-muted-foreground">Profile character: {avatar.label} · locked</div>
           </div>
         </div>
 

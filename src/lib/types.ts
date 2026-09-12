@@ -90,6 +90,7 @@ export interface UserProfile {
   sourceOfFunds?: string;
   pay8Id: string;         // unique PAY8 handle
   avatarColor: string;    // for generated avatar
+  avatarCharacter?: "simple_girl" | "simple_boy" | "girly" | "boyish";
 }
 
 export interface Verification {

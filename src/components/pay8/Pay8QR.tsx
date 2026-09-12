@@ -44,9 +44,9 @@ export function Pay8QR({
         imageSettings={
           includeLogo
             ? {
-                src: logoUrl ?? "/logo.svg",
-                height: Math.floor(size * 0.22),
-                width: Math.floor(size * 0.22),
+                src: logoUrl ?? "/logo-white.jpeg",
+                height: Math.floor(size * 0.18),
+                width: Math.floor(size * 0.27),
                 excavate: true,
               }
             : undefined

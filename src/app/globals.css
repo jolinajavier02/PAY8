@@ -169,6 +169,14 @@
   height: 100%;
 }
 
+.pay8-logo {
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  background: #ffffff;
+  object-fit: cover;
+  object-position: center;
+}
+
 @media (max-width: 540px) {
   html,
   body {

@@ -27,9 +27,9 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
         initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.1 }}
-        src="/logo.svg"
+        src="/logo-white.jpeg"
         alt="PAY8 logo"
-        className="h-28 w-28 object-contain pay8-elev-2"
+        className="pay8-logo h-28 w-28 pay8-elev-2"
       />
       <motion.div
         initial={{ opacity: 0, y: 12 }}

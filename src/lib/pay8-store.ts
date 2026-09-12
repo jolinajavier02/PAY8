@@ -97,6 +97,7 @@ const defaultProfile: UserProfile = {
   sourceOfFunds: "Salary",
   pay8Id: "09172345678",
   avatarColor: "violet",
+  avatarCharacter: "simple_boy",
 };
 
 const defaultVerification: Verification = {

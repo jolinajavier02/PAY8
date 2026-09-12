@@ -4,11 +4,12 @@ import { useState } from "react";
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronDown, HelpCircle, KeyRound, RefreshCw, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronDown, Fingerprint, HelpCircle, IdCard, KeyRound, Mail, RefreshCw, ShieldCheck, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Country = "PH" | "JP" | "IN";
-type Step = "phone" | "otp" | "pin-setup" | "pin-confirm";
+type Step = "phone" | "otp" | "details" | "pin-setup" | "pin-confirm";
+type AvatarCharacter = "simple_girl" | "simple_boy" | "girly" | "boyish";
 
 const COUNTRIES: Record<Country, { dial: string; flag: string; placeholder: string; maskLen: number }> = {
   PH: { dial: "+63", flag: "🇵🇭", placeholder: "917 123 4567", maskLen: 10 },
@@ -17,6 +18,13 @@ const COUNTRIES: Record<Country, { dial: string; flag: string; placeholder: stri
 };
 
 const MOCK_OTP = "1234"; // demo only — auto-fills
+
+const AVATARS: Array<{ id: AvatarCharacter; label: string; tone: string; icon: string }> = [
+  { id: "simple_girl", label: "Simple girl", tone: "bg-rose-50 text-rose-700 border-rose-100", icon: "SG" },
+  { id: "simple_boy", label: "Simple boy", tone: "bg-sky-50 text-sky-700 border-sky-100", icon: "SB" },
+  { id: "girly", label: "Girly", tone: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-100", icon: "GR" },
+  { id: "boyish", label: "Boyish", tone: "bg-indigo-50 text-indigo-700 border-indigo-100", icon: "BY" },
+];
 
 export function LoginScreen() {
   const setAuthCountry = usePay8((s) => s.setAuthCountry);
@@ -34,10 +42,27 @@ export function LoginScreen() {
   const [pin, setPinLocal] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
   const [showCountryMenu, setShowCountryMenu] = useState(false);
+  const [details, setDetails] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    confirmEmail: "",
+    idType: "PhilSys ID",
+    idNumber: "",
+    biometricsConfirmed: false,
+    avatarCharacter: "simple_boy" as AvatarCharacter,
+  });
 
   const fullPhone = `${COUNTRIES[country].dial} ${phone}`;
   const canSubmitPhone = phone.replace(/\D/g, "").length >= 7;
   const canSubmitOtp = otp.length === 4;
+  const canSubmitDetails =
+    details.firstName.trim().length >= 2 &&
+    details.lastName.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email) &&
+    details.email === details.confirmEmail &&
+    details.idNumber.trim().length >= 4 &&
+    details.biometricsConfirmed;
   const canSubmitPin = pin.length === 6;
   const canConfirmPin = pinConfirm.length === 6 && pin === pinConfirm;
 
@@ -51,10 +76,18 @@ export function LoginScreen() {
 
   const handleVerifyOtp = () => {
     if (otp === MOCK_OTP || otp.length === 4) {
-      setStep("pin-setup");
+      setStep("details");
     } else {
       showToast({ title: "Invalid OTP", description: "Try 1234 for demo", variant: "error" });
     }
+  };
+
+  const handleDetails = () => {
+    if (!canSubmitDetails) {
+      showToast({ title: "Complete accurate details", description: "Email must match and biometrics must be confirmed.", variant: "warning" });
+      return;
+    }
+    setStep("pin-setup");
   };
 
   const handleSetPin = () => {
@@ -70,7 +103,14 @@ export function LoginScreen() {
     }
     setPin(pin);
     // Set the user's profile mobile from the registered number
-    setProfile({ mobile: fullPhone, pay8Id: phone.replace(/\D/g, "") });
+    setProfile({
+      firstName: details.firstName.trim(),
+      lastName: details.lastName.trim(),
+      email: details.email.trim(),
+      mobile: fullPhone,
+      pay8Id: phone.replace(/\D/g, ""),
+      avatarCharacter: details.avatarCharacter,
+    });
     setAuthed(true);
     resetToHome();
     showToast({ title: "Welcome to PAY8", description: "Account created successfully", variant: "success" });
@@ -80,7 +120,7 @@ export function LoginScreen() {
     <div className="relative min-h-screen bg-background pt-8">
       {/* Header with logo */}
       <div className="px-5 pt-14 pb-6 text-center">
-        <img src="/logo.svg" alt="PAY8 logo" className="mx-auto h-16 w-16 object-contain pay8-elev-1" />
+        <img src="/logo-white.jpeg" alt="PAY8 logo" className="pay8-logo mx-auto h-16 w-16 pay8-elev-1" />
         <h1 className="mt-3 text-2xl font-bold text-foreground">PAY8</h1>
         <p className="text-xs text-muted-foreground">Your money, your commute, one tap.</p>
       </div>
@@ -223,9 +263,101 @@ export function LoginScreen() {
               </div>
             )}
 
+            {step === "details" && (
+              <div className="space-y-4">
+                <button onClick={() => setStep("otp")} className="text-sm text-muted-foreground hover:text-foreground">
+                  ← Back
+                </button>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Account details</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Use accurate details. Email, number, ID, and biometrics are used for verification.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <RegistrationField label="First name" value={details.firstName} onChange={(v) => setDetails({ ...details, firstName: v })} icon={UserRound} />
+                  <RegistrationField label="Last name" value={details.lastName} onChange={(v) => setDetails({ ...details, lastName: v })} icon={UserRound} />
+                </div>
+                <RegistrationField label="Email" value={details.email} onChange={(v) => setDetails({ ...details, email: v })} icon={Mail} type="email" />
+                <RegistrationField label="Confirm email" value={details.confirmEmail} onChange={(v) => setDetails({ ...details, confirmEmail: v })} icon={Mail} type="email" />
+
+                <div className="rounded-2xl border border-border bg-card p-3">
+                  <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">ID type</label>
+                  <select
+                    value={details.idType}
+                    onChange={(e) => setDetails({ ...details, idType: e.target.value })}
+                    className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none"
+                  >
+                    {["PhilSys ID", "Driver's License", "Passport", "UMID", "SSS ID"].map((id) => (
+                      <option key={id}>{id}</option>
+                    ))}
+                  </select>
+                  <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
+                    <IdCard className="h-4 w-4 text-muted-foreground" />
+                    <input
+                      placeholder="ID number"
+                      value={details.idNumber}
+                      onChange={(e) => setDetails({ ...details, idNumber: e.target.value })}
+                      className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setDetails({ ...details, biometricsConfirmed: !details.biometricsConfirmed })}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-2xl border p-3 text-left",
+                    details.biometricsConfirmed ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-muted-foreground",
+                  )}
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Fingerprint className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-foreground">Biometric scan</div>
+                    <div className="text-xs text-muted-foreground">Confirm face or fingerprint verification for this demo.</div>
+                  </div>
+                  {details.biometricsConfirmed && <ShieldCheck className="h-4 w-4" />}
+                </button>
+
+                <div>
+                  <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Choose profile character</div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {AVATARS.map((avatar) => (
+                      <button
+                        key={avatar.id}
+                        onClick={() => setDetails({ ...details, avatarCharacter: avatar.id })}
+                        className={cn(
+                          "rounded-2xl border p-2 text-center transition-all",
+                          avatar.tone,
+                          details.avatarCharacter === avatar.id ? "ring-2 ring-primary" : "",
+                        )}
+                      >
+                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-xs font-bold">
+                          {avatar.icon}
+                        </div>
+                        <div className="mt-1 text-[10px] font-medium leading-tight">{avatar.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[10px] text-muted-foreground">This character is selected only during registration and cannot be changed later.</p>
+                </div>
+
+                <button
+                  onClick={handleDetails}
+                  disabled={!canSubmitDetails}
+                  className={cn(
+                    "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all",
+                    canSubmitDetails ? "bg-primary text-primary-foreground pay8-elev-1 active:scale-[0.99]" : "cursor-not-allowed bg-primary/45 text-primary-foreground/80",
+                  )}
+                >
+                  Continue <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             {step === "pin-setup" && (
               <div className="space-y-5">
-                <button onClick={() => setStep("otp")} className="text-sm text-muted-foreground hover:text-foreground">
+                <button onClick={() => setStep("details")} className="text-sm text-muted-foreground hover:text-foreground">
                   ← Back
                 </button>
                 <div>
@@ -341,6 +473,35 @@ function OtpInput({ value, onChange, onComplete }: { value: string; onChange: (v
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function RegistrationField({
+  label,
+  value,
+  onChange,
+  icon: Icon,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  icon: typeof UserRound;
+  type?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3">
+      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
+      <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+        />
       </div>
     </div>
   );
