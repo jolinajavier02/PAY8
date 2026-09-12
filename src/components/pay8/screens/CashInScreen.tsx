@@ -76,7 +76,7 @@ export function CashInScreen() {
     );
   }
 
-  if (step === "amount") {
+  if (step === "amount" || step === "review") {
     return (
       <div className="space-y-4 px-4 py-4">
         <button onClick={() => setStep("select")} className="text-sm text-muted-foreground hover:text-foreground">

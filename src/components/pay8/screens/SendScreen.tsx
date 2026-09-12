@@ -8,6 +8,13 @@ import { ArrowRight, Check, Contact, Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+const PAY8_DIRECTORY = [
+  { name: "Juan Dela Cruz", accountNumber: "09187654321", verified: true },
+  { name: "Andrea Lim", accountNumber: "09201112222", verified: true },
+  { name: "Maria Santos", accountNumber: "09172345678", verified: true },
+  { name: "Carlo Reyes", accountNumber: "09981234567", verified: false },
+];
+
 export function SendScreen() {
   return (
     <div className="space-y-4 px-4 py-4">
@@ -19,6 +26,7 @@ export function SendScreen() {
 function SendToPay8() {
   const payees = usePay8((s) => s.payees).filter((p) => p.type === "bank");
   const profile = usePay8((s) => s.profile);
+  const verification = usePay8((s) => s.verification);
   const balance = usePay8((s) => s.balance);
   const addTxn = usePay8((s) => s.addTransaction);
   const adjustBalance = usePay8((s) => s.adjustBalance);
@@ -35,10 +43,20 @@ function SendToPay8() {
 
   const amt = parseFloat(amount) || 0;
   const canProceed = recipient.length >= 10 && amt > 0 && amt <= balance;
-  const matchedPayee = payees.find((p) => p.accountNumber.replace(/\D/g, "") === recipient.replace(/\D/g, ""));
-  const receiverName = matchedPayee?.name ?? "PAY8 User";
-  const receiverAccount = matchedPayee?.accountNumber ?? recipient;
+  const recipientDigits = recipient.replace(/\D/g, "");
+  const matchedPayee = payees.find((p) => p.accountNumber.replace(/\D/g, "") === recipientDigits);
+  const matchedDirectory = PAY8_DIRECTORY.find((p) => p.accountNumber.replace(/\D/g, "") === recipientDigits);
+  const receiverVerified = matchedDirectory?.verified ?? Boolean(matchedPayee);
+  const receiverName = receiverVerified ? (matchedDirectory?.name ?? matchedPayee?.name ?? "Verified PAY8 User") : (matchedDirectory?.name ?? "Unverified PAY8 account");
+  const receiverAccount = matchedDirectory?.accountNumber ?? matchedPayee?.accountNumber ?? recipient;
   const senderName = `${profile.firstName} ${profile.lastName}`;
+  const senderVerified = verification.status === "verified";
+  const caution = !senderVerified || !receiverVerified
+    ? [
+        !senderVerified ? "your account is not fully verified" : "",
+        !receiverVerified ? "the receiver is not fully verified" : "",
+      ].filter(Boolean).join(" and ")
+    : "";
 
   const confirm = () => {
     openPinPad(`Send ${formatCurrency(amt)} to ${receiverName}`, () => {
@@ -46,9 +64,13 @@ function SendToPay8() {
         type: "send",
         status: "completed",
         amount: amt,
-        counterparty: receiverName,
-        counterpartyHandle: maskPhone(receiverAccount),
-        note: note ? `${note} · From ${senderName}` : `From ${senderName}`,
+          counterparty: receiverName,
+          counterpartyHandle: maskPhone(receiverAccount),
+        note: [
+          note || "",
+          `From ${senderName}`,
+          caution ? `Caution confirmed: ${caution}` : "",
+        ].filter(Boolean).join(" · "),
       });
       adjustBalance(-amt);
       const timestamp = new Date(tx.createdAt).toLocaleString("en-PH");
@@ -179,14 +201,18 @@ function SendToPay8() {
           rows={[
             { label: "Receiver full name", value: receiverName },
             { label: "Receiver account", value: maskPhone(receiverAccount) },
+            { label: "Receiver status", value: receiverVerified ? "Verified PAY8 account" : "Unverified PAY8 account" },
+            { label: "Sender status", value: senderVerified ? "Verified" : verification.status === "pending" ? "Basic · under review" : "Basic · unverified" },
             { label: "Sender", value: senderName },
             { label: "Amount", value: formatCurrency(amt) },
             { label: "Note", value: note || "—" },
             { label: "Fee", value: "Free" },
             { label: "Total", value: formatCurrency(amt), highlight: true },
           ]}
+          caution={caution ? `Caution: you're about to send while ${caution}. Confirm only if you know and trust this account.` : undefined}
           onConfirm={confirm}
           onCancel={() => setStep("input")}
+          confirmLabel={caution ? "I understand, send" : "Confirm & Send"}
         />
       )}
     </div>
@@ -196,12 +222,14 @@ function SendToPay8() {
 export function ReviewSheet({
   title,
   rows,
+  caution,
   onConfirm,
   onCancel,
   confirmLabel = "Confirm & Send",
 }: {
   title: string;
   rows: Array<{ label: string; value: string; highlight?: boolean }>;
+  caution?: string;
   onConfirm: () => void;
   onCancel: () => void;
   confirmLabel?: string;
@@ -234,6 +262,12 @@ export function ReviewSheet({
             </div>
           ))}
         </div>
+
+        {caution && (
+          <div className="mt-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-xs font-medium text-amber-800">
+            {caution}
+          </div>
+        )}
 
         <button
           onClick={onConfirm}

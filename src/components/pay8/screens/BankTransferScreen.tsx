@@ -76,7 +76,7 @@ export function BankTransferScreen() {
     );
   }
 
-  if (step === "details" && selectedBank) {
+  if ((step === "details" || step === "review") && selectedBank) {
     return (
       <div className="space-y-4 px-4 py-4">
         <button onClick={() => setStep("select")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">

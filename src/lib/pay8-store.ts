@@ -24,7 +24,7 @@ import {
 /** Build a set of demo transactions so the wallet feels alive on first load. */
 function seedTransactions(cardId: string): Transaction[] {
   const now = Date.now();
-  const entries: Array<Partial<Transaction> & { type: Transaction["type"]; amount: number; counterparty: string }> = [
+  const entries: Array<Partial<Transaction> & { type: Transaction["type"]; amount: number; counterparty: string; t?: number }> = [
     { type: "receive", amount: 2500, counterparty: "Maria Santos", counterpartyHandle: "0917 234 5678", note: "Split — dinner last night", t: now - 1000 * 60 * 35 },
     { type: "qrpay", amount: 285, counterparty: "Coffee Project — Katipunan", counterpartyHandle: "MP-8821", note: "Iced latte + croissant", t: now - 1000 * 60 * 60 * 4 },
     { type: "cardload", amount: 500, counterparty: "PAY8 Card", counterpartyHandle: `•••• ${cardId}`, note: "Auto-reload triggered", t: now - 1000 * 60 * 60 * 6 },
@@ -78,6 +78,25 @@ function seedCard(): Pay8Card {
     autoReloadAmount: 500,
     issuedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
     transactions: seedCardTransactions(),
+  };
+}
+
+function createBlankCard(): Pay8Card {
+  const pan = generatePan();
+  const expiry = `${String(((new Date().getMonth() + 8) % 12) + 1).padStart(2, "0")}/${String((new Date().getFullYear() + 2) % 100).padStart(2, "0")}`;
+  return {
+    id: pan.last4,
+    number: pan.last4,
+    fullNumber: pan.full,
+    expiry,
+    cvv: "8" + Math.floor(Math.random() * 900 + 100).toString().slice(0, 2),
+    balance: 0,
+    status: "active",
+    autoReload: false,
+    autoReloadThreshold: 100,
+    autoReloadAmount: 500,
+    issuedAt: new Date().toISOString(),
+    transactions: [],
   };
 }
 
@@ -181,6 +200,7 @@ interface Pay8State {
   setAuthCountry: (c: "PH" | "JP" | "IN") => void;
   setAuthPhone: (phone: string) => void;
   setAuthed: (v: boolean) => void;
+  initializeBasicAccount: (phone: string, country: "PH" | "JP" | "IN", pin: string) => void;
   logout: () => void;
 
   addTransaction: (tx: Omit<Transaction, "id" | "reference" | "createdAt"> & Partial<Pick<Transaction, "id" | "reference" | "createdAt">>) => Transaction;
@@ -252,12 +272,57 @@ export const usePay8 = create<Pay8State>()(
       updateVerification: (patch) =>
         set((s) => ({ verification: { ...s.verification, ...patch } })),
 
-      setPin: (pin) => set({ pin }),
+      setPin: (pin) => set({ pin, isPinSet: true }),
       verifyPin: (pin) => pin === get().pin,
 
       setAuthCountry: (c) => set({ authCountry: c }),
       setAuthPhone: (phone) => set({ authPhone: phone }),
       setAuthed: (v) => set({ isAuthed: v }),
+      initializeBasicAccount: (phone, country, pin) =>
+        set({
+          profile: {
+            ...defaultProfile,
+            firstName: "PAY8",
+            middleName: "",
+            lastName: "User",
+            mobile: phone,
+            email: "",
+            birthdate: "",
+            sex: undefined,
+            address: "",
+            city: "",
+            province: "",
+            postalCode: "",
+            occupation: "",
+            sourceOfFunds: "",
+            pay8Id: phone.replace(/\D/g, ""),
+            avatarColor: "violet",
+            avatarCharacter: "simple_boy",
+          },
+          verification: {
+            status: "unverified",
+            level: "basic",
+            stepsCompleted: {
+              personalInfo: false,
+              idTypeSelected: false,
+              idFrontUploaded: false,
+              idBackUploaded: false,
+              selfieCaptured: false,
+              reviewConfirmed: false,
+            },
+          },
+          pin,
+          balance: 0,
+          transactions: [],
+          card: createBlankCard(),
+          linkedAccounts: [],
+          payees: [],
+          notifications: [],
+          isPinSet: true,
+          isAuthed: true,
+          authCountry: country,
+          authPhone: phone,
+        }),
       logout: () => set({ isAuthed: false, authPhone: "" }),
 
       addTransaction: (tx) => {

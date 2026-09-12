@@ -68,6 +68,8 @@ export function VerifyScreen() {
     middleName: profile.middleName ?? "",
     lastName: profile.lastName,
     suffix: profile.suffix ?? "",
+    email: profile.email,
+    confirmEmail: profile.email,
     birthdate: profile.birthdate,
     sex: profile.sex ?? "male",
     address: profile.address,
@@ -82,6 +84,16 @@ export function VerifyScreen() {
   const [frontUploaded, setFrontUploaded] = useState(verification.stepsCompleted.idFrontUploaded);
   const [backUploaded, setBackUploaded] = useState(verification.stepsCompleted.idBackUploaded);
   const [selfieCaptured, setSelfieCaptured] = useState(verification.stepsCompleted.selfieCaptured);
+  const canContinuePersonal =
+    profileForm.firstName.trim().length >= 2 &&
+    profileForm.lastName.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email) &&
+    profileForm.email === profileForm.confirmEmail &&
+    !!profileForm.birthdate &&
+    profileForm.address.trim().length >= 5 &&
+    profileForm.city.trim().length >= 2 &&
+    profileForm.province.trim().length >= 2 &&
+    profileForm.occupation.trim().length >= 2;
 
   if (verification.status === "verified") {
     return (
@@ -121,7 +133,7 @@ export function VerifyScreen() {
         </motion.div>
         <h2 className="mt-6 text-xl font-bold text-foreground">Verification under review</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          We're reviewing your submission. You'll get a notification within 1-2 business days.
+          We're reviewing your submission. Your badge remains Basic until review is complete, usually within 24 hours.
         </p>
         <div className="mt-6 w-full max-w-xs rounded-2xl border border-border bg-card p-4 text-left text-xs text-muted-foreground">
           <div className="flex justify-between"><span>ID Type</span><span className="text-foreground">{verification.idType}</span></div>
@@ -151,7 +163,7 @@ export function VerifyScreen() {
     setTimeout(() => {
       updateVerification({
         status: "pending",
-        level: "verified",
+        level: "basic",
         idType,
         idNumber,
         submittedAt: new Date().toISOString(),
@@ -169,6 +181,7 @@ export function VerifyScreen() {
         middleName: profileForm.middleName,
         lastName: profileForm.lastName,
         suffix: profileForm.suffix,
+        email: profileForm.email,
         birthdate: profileForm.birthdate,
         sex: profileForm.sex as "male" | "female" | "other",
         address: profileForm.address,
@@ -180,7 +193,7 @@ export function VerifyScreen() {
       });
       addNotification({
         title: "Verification submitted",
-        body: `We received your ${idType ?? "ID"}. Review takes 1-2 business days.`,
+        body: `We received your ${idType ?? "ID"}. Review usually takes up to 24 hours.`,
         type: "verification",
       });
       showToast({ title: "Submitted", description: "Verification under review", variant: "success" });
@@ -271,6 +284,12 @@ export function VerifyScreen() {
                 <FormField label="Last name" value={profileForm.lastName} onChange={(v) => setProfileForm({ ...profileForm, lastName: v })} />
                 <FormField label="Suffix" value={profileForm.suffix} onChange={(v) => setProfileForm({ ...profileForm, suffix: v })} placeholder="Jr / Sr / III" />
               </div>
+              <div className="rounded-2xl border border-border bg-primary/[0.04] p-3">
+                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Verified mobile number</div>
+                <div className="mt-1 text-sm font-semibold text-foreground">{profile.mobile}</div>
+              </div>
+              <FormField label="Email" type="email" value={profileForm.email} onChange={(v) => setProfileForm({ ...profileForm, email: v })} placeholder="you@email.com" />
+              <FormField label="Confirm email" type="email" value={profileForm.confirmEmail} onChange={(v) => setProfileForm({ ...profileForm, confirmEmail: v })} placeholder="you@email.com" />
               <FormField label="Birthdate" type="date" value={profileForm.birthdate} onChange={(v) => setProfileForm({ ...profileForm, birthdate: v })} />
               <div>
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Sex</label>
@@ -297,6 +316,7 @@ export function VerifyScreen() {
               </div>
               <FormField label="Source of funds" value={profileForm.sourceOfFunds} onChange={(v) => setProfileForm({ ...profileForm, sourceOfFunds: v })} />
               <PrimaryButton
+                disabled={!canContinuePersonal}
                 onClick={() => {
                   updateVerification({ stepsCompleted: { ...verification.stepsCompleted, personalInfo: true } });
                   goNext();

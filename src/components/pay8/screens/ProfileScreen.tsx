@@ -117,7 +117,7 @@ export function ProfileScreen() {
             <div>
               <div className={cn("font-semibold", verified ? "text-accent" : "text-primary")}>Verification: {level.toUpperCase()}</div>
               <div className={cn("text-xs", verified ? "text-accent/80" : "text-muted-foreground")}>
-                {verified ? "Your account is verified" : verification.status === "pending" ? "Under review" : "Tap to complete verification"}
+                {verified ? "Your account is verified" : verification.status === "pending" ? "Under review · badge updates within 24 hours" : "Tap to complete verification"}
               </div>
             </div>
             <ChevronRight className={cn("h-4 w-4", verified ? "text-accent" : "text-primary")} />
