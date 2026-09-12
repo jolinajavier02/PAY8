@@ -162,7 +162,7 @@ export function LoginScreen() {
                   Continue
                 </button>
 
-                <div className="flex items-center justify-between pt-2 text-xs">
+                <div className="grid grid-cols-3 items-center gap-2 pt-2 text-xs">
                   <button
                     onClick={() => showToast({ title: "Help", description: "Email support@pay8.app or call +63 (2) 8888-1234", variant: "default" })}
                     className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
@@ -170,19 +170,18 @@ export function LoginScreen() {
                     <HelpCircle className="h-3.5 w-3.5" /> Help
                   </button>
                   <button
+                    onClick={() => showToast({ title: "Freeze account", description: "Call +63 (2) 8888-1234 to freeze PAY8 after phone theft or SIM loss.", variant: "warning" })}
+                    className="text-center font-medium text-primary hover:text-primary/80"
+                  >
+                    Freeze account
+                  </button>
+                  <button
                     onClick={() => showToast({ title: "Forgot PIN", description: "Reset via OTP — call support to verify identity", variant: "warning" })}
-                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                    className="flex items-center justify-end gap-1 text-muted-foreground hover:text-foreground"
                   >
                     <KeyRound className="h-3.5 w-3.5" /> Forgot PIN
                   </button>
                 </div>
-
-                <button
-                  onClick={() => showToast({ title: "Freeze account", description: "Call +63 (2) 8888-1234 to freeze PAY8 after phone theft or SIM loss.", variant: "warning" })}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary"
-                >
-                  <ShieldCheck className="h-4 w-4" /> Freeze account
-                </button>
 
                 <p className="text-center text-[10px] text-muted-foreground">
                   By continuing, you agree to PAY8's Terms of Service and Privacy Policy.

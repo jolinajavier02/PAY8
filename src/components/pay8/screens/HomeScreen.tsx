@@ -3,11 +3,11 @@
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { BalanceCard } from "../BalanceCard";
-import { formatCurrency, PROMOS } from "@/lib/pay8-utils";
+import { PROMOS } from "@/lib/pay8-utils";
 import { motion } from "framer-motion";
 import {
-  Send, Lightbulb, Coins, Train, Gift, ChevronRight, CreditCard, Zap, Megaphone, TrendingUp,
-  Compass, Grid3X3, FolderPlus, Wallet,
+  Send, Lightbulb, Coins, Train, Gift, ChevronRight, Zap, Megaphone, TrendingUp,
+  Compass, Grid3X3, Wallet,
 } from "lucide-react";
 import type { ScreenId } from "@/lib/types";
 
@@ -85,29 +85,25 @@ export function HomeScreen() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => navigate("save8")}
-            className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left pay8-elev-1 transition-all hover:bg-muted active:scale-[0.98]"
+            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card p-4 pay8-elev-1 transition-all hover:bg-muted active:scale-[0.98]"
+            aria-label="Open Save8"
           >
             <SavingsJarPreview />
-            <div className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">Save8</div>
-            <div className="mt-0.5 text-sm font-bold text-foreground">Create savings folders</div>
-            <div className="mt-1 text-[10px] text-muted-foreground">Fill jars with coins and bills</div>
           </button>
 
           <button
             onClick={() => navigate("card")}
-            className="relative overflow-hidden rounded-2xl p-4 text-left text-white pay8-gradient-navy pay8-elev-1 transition-all active:scale-[0.98]"
+            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl p-4 text-white pay8-gradient-navy pay8-elev-1 transition-all active:scale-[0.98]"
+            aria-label="Open MyCard"
           >
             <StackedCardPreview />
-            <div className="relative mt-3 text-[10px] uppercase tracking-wider text-white/70">MyCard</div>
-            <div className="mt-0.5 font-mono text-lg font-bold text-white">{formatCurrency(card.balance)}</div>
-            <div className="mt-1 text-[10px] text-white/70">Virtual and physical card</div>
           </button>
         </div>
       </section>
 
       <section>
         <div className="mb-2 flex items-center justify-between px-1">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invest8 highlights</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">For your investment</h2>
           <button onClick={() => navigate("verify")} className="text-[10px] font-semibold text-primary">Invest8</button>
         </div>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pay8-scroll-snap">
@@ -157,26 +153,11 @@ export function HomeScreen() {
       </section>
 
       <FeatureCarousel
-        title="Explore8"
+        title="Deals"
         items={[
-          { title: "Nearby deals", subtitle: "Food, transport, and PAY8 partner rewards." },
-          { title: "Travel perks", subtitle: "Find promos for trips and city passes." },
-        ]}
-      />
-
-      <FeatureCarousel
-        title="Paybills"
-        items={[
-          { title: "Utilities", subtitle: "MERALCO, Maynilad, PLDT, Globe, and more." },
-          { title: "Government", subtitle: "Pay SSS, BIR, PhilHealth, and Pag-IBIG." },
-        ]}
-      />
-
-      <FeatureCarousel
-        title="Load8"
-        items={[
-          { title: "Mobile load", subtitle: "Globe, Smart, DITO, TNT, and TM." },
-          { title: "Data bundles", subtitle: "Daily, weekly, and gaming packs." },
+          { title: "Explore8", subtitle: "Nearby food, transport, and PAY8 partner rewards." },
+          { title: "Paybills", subtitle: "Bill payment deals for utilities, government, and telecom." },
+          { title: "Load8", subtitle: "Mobile load and data bundle promos." },
         ]}
       />
 
@@ -234,33 +215,28 @@ function FeatureCarousel({ title, items }: { title: string; items: Array<{ title
 
 function SavingsJarPreview() {
   return (
-    <div className="relative h-16">
-      <div className="absolute left-2 top-1 h-14 w-12 rounded-b-2xl rounded-t-lg border-2 border-primary/25 bg-primary/5">
-        <div className="absolute left-2 right-2 top-[-7px] h-2 rounded-t-md border-2 border-primary/25 border-b-0 bg-card" />
-        <div className="absolute bottom-2 left-1 right-1 h-5 rounded-b-xl bg-primary/15" />
-        <div className="absolute bottom-3 left-2 h-2 w-2 rounded-full bg-amber-400" />
-        <div className="absolute bottom-4 right-2 h-2 w-2 rounded-full bg-amber-300" />
-        <div className="absolute bottom-6 left-4 h-2 w-2 rounded-full bg-amber-500" />
+    <div className="relative h-28 w-28">
+      <div className="absolute left-4 top-5 h-20 w-16 rounded-b-3xl rounded-t-xl border-4 border-primary/20 bg-primary/5">
+        <div className="absolute left-3 right-3 top-[-13px] h-4 rounded-t-lg border-4 border-primary/20 border-b-0 bg-card" />
+        <div className="absolute bottom-0 left-0 right-0 h-8 rounded-b-2xl bg-primary/10" />
+        <div className="absolute bottom-4 left-3 h-4 w-4 rounded-full bg-amber-400" />
+        <div className="absolute bottom-6 right-3 h-4 w-4 rounded-full bg-amber-300" />
+        <div className="absolute bottom-9 left-8 h-4 w-4 rounded-full bg-amber-500" />
       </div>
-      <div className="absolute bottom-2 right-1 flex h-8 w-11 rotate-[-8deg] items-center justify-center rounded-md border border-primary/20 bg-emerald-50 text-[10px] font-bold text-primary">
-        ₱
-      </div>
-      <FolderPlus className="absolute right-1 top-0 h-4 w-4 text-primary" />
     </div>
   );
 }
 
 function StackedCardPreview() {
   return (
-    <div className="relative h-16">
-      <div className="absolute right-0 top-1 h-11 w-20 rotate-6 rounded-xl bg-white/18" />
-      <div className="absolute left-0 top-3 h-11 w-20 -rotate-6 rounded-xl bg-white/12" />
-      <div className="absolute left-2 top-1 h-12 w-24 rounded-xl bg-white/20 p-2">
-        <div className="h-3 w-4 rounded-sm bg-gradient-to-br from-amber-200 to-amber-500" />
-        <div className="mt-3 h-1.5 w-14 rounded-full bg-white/60" />
-        <div className="mt-1 h-1 w-9 rounded-full bg-white/35" />
+    <div className="relative h-28 w-36">
+      <div className="absolute right-2 top-3 h-20 w-28 rotate-6 rounded-2xl bg-white/18" />
+      <div className="absolute left-2 top-6 h-20 w-28 -rotate-6 rounded-2xl bg-white/12" />
+      <div className="absolute left-5 top-4 h-20 w-28 rounded-2xl bg-white/20 p-4">
+        <div className="h-4 w-6 rounded-full bg-gradient-to-br from-amber-200 to-amber-500" />
+        <div className="mt-5 h-2 w-20 rounded-full bg-white/60" />
+        <div className="mt-2 h-1.5 w-12 rounded-full bg-white/35" />
       </div>
-      <CreditCard className="absolute right-1 top-0 h-4 w-4 text-white/80" />
     </div>
   );
 }
