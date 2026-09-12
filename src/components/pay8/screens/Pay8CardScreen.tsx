@@ -5,7 +5,7 @@ import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { formatCurrency, formatDateTime, dateGroupKey } from "@/lib/pay8-utils";
 import type { CardTransaction } from "@/lib/types";
-import { ArrowDownLeft, CreditCard, Eye, EyeOff, Plus, Snowflake, Train, Zap, Check } from "lucide-react";
+import { ArrowDownLeft, CreditCard, Eye, EyeOff, Plus, Snowflake, Wifi, Smartphone, ShieldCheck, Train, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { SuccessPanel } from "./SendScreen";
@@ -14,7 +14,7 @@ export function Pay8CardScreen() {
   const card = usePay8((s) => s.card);
   const balance = usePay8((s) => s.balance);
   const loadCard = usePay8((s) => s.loadCard);
-  const toggleFreeze = usePay8((s) => s.toggleFreeze);
+  const toggleFreeze = usePay8((s) => s.toggleCardFreeze);
   const updateCard = usePay8((s) => s.updateCard);
   const openPinPad = usePay8Ui((s) => s.openPinPad);
   const showToast = usePay8Ui((s) => s.showToast);
@@ -42,7 +42,7 @@ export function Pay8CardScreen() {
     return (
       <SuccessPanel
         title="Card loaded"
-        subtitle={`${formatCurrency(amt)} added to PAY8 Card`}
+        subtitle={`${formatCurrency(amt)} added to MyCard`}
         reference={usePay8.getState().transactions[0]?.reference ?? ""}
         onDone={() => {
           setDone(false);
@@ -54,7 +54,9 @@ export function Pay8CardScreen() {
 
   return (
     <div className="space-y-5 px-4 py-4">
-      <motion.div
+      <section>
+        <div className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Physical and online cards</div>
+        <motion.div
         initial={{ opacity: 0, y: 12, rotateX: 12 }}
         animate={{ opacity: 1, y: 0, rotateX: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -80,9 +82,9 @@ export function Pay8CardScreen() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 font-bold text-xs">8</div>
-                <span className="text-xs font-medium uppercase tracking-wider text-white/80">PAY8 Card</span>
+                <span className="text-xs font-medium uppercase tracking-wider text-white/80">MyCard</span>
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-white/60">Tap-to-Pay · Transit</span>
+              <span className="text-[10px] uppercase tracking-wider text-white/60">Physical · Online</span>
             </div>
 
             <div>
@@ -111,7 +113,8 @@ export function Pay8CardScreen() {
             </div>
           </div>
         </div>
-      </motion.div>
+        </motion.div>
+      </section>
 
       <div className="grid grid-cols-3 gap-2">
         <CardAction label="Add funds" icon={Plus} onClick={() => setShowAddFunds(true)} tint="bg-primary/10 text-primary" />
@@ -139,6 +142,26 @@ export function Pay8CardScreen() {
           active={card.autoReload}
         />
       </div>
+
+      <section>
+        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Card options</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <InfoTile icon={CreditCard} title="Physical card" body="Tap, swipe, and ATM-ready" />
+          <InfoTile icon={Smartphone} title="Online card" body="Use for apps and checkout" />
+          <InfoTile icon={Wifi} title="Contactless" body="NFC payments enabled" />
+          <InfoTile icon={ShieldCheck} title="Protected" body="Freeze anytime" />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Card details</h2>
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card">
+          <DetailRow label="Card number" value={showNumber ? card.fullNumber.replace(/(.{4})/g, "$1 ").trim() : `•••• •••• •••• ${card.number}`} />
+          <DetailRow label="Expiry" value={card.expiry} />
+          <DetailRow label="CVV" value={showNumber ? card.cvv : "•••"} />
+          <DetailRow label="Status" value={card.status === "active" ? "Active" : "Frozen"} />
+        </div>
+      </section>
 
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
@@ -192,7 +215,7 @@ export function Pay8CardScreen() {
             className="w-full max-w-md rounded-t-3xl border-t border-border bg-card p-5 pb-8 shadow-2xl"
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
-            <h3 className="text-center text-lg font-semibold text-foreground">Load PAY8 Card</h3>
+            <h3 className="text-center text-lg font-semibold text-foreground">Load MyCard</h3>
             <p className="mt-1 text-center text-xs text-muted-foreground">From your wallet balance {formatCurrency(balance)}</p>
 
             <div className="mt-4 rounded-2xl border border-border bg-background p-3">
@@ -265,6 +288,27 @@ function CardAction({
       </div>
       <span className="text-[11px] font-medium">{label}</span>
     </button>
+  );
+}
+
+function InfoTile({ icon: Icon, title, body }: { icon: typeof Plus; title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" strokeWidth={2.2} />
+      </div>
+      <div className="mt-2 text-sm font-semibold text-foreground">{title}</div>
+      <div className="mt-0.5 text-xs text-muted-foreground">{body}</div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-3">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-right font-mono text-sm font-semibold text-foreground">{value}</span>
+    </div>
   );
 }
 

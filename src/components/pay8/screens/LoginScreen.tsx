@@ -77,7 +77,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background pt-8">
       {/* Header with logo */}
       <div className="px-5 pt-14 pb-6 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl pay8-gradient-navy text-white pay8-elev-1">

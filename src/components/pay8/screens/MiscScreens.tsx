@@ -5,7 +5,7 @@ import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { CATALOG } from "@/lib/pay8-store";
 import { formatCurrency, formatDateTime } from "@/lib/pay8-utils";
 import { motion } from "framer-motion";
-import { ArrowRight, BellOff, Check, ChevronRight, Lightbulb, Plus, Search } from "lucide-react";
+import { ArrowRight, BellOff, Check, ChevronRight, CreditCard, FolderPlus, Lightbulb, PiggyBank, Plus, Search, Train, Wallet } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SuccessPanel } from "./SendScreen";
@@ -64,6 +64,129 @@ export function NotificationsScreen() {
             </button>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+export function Save8Screen() {
+  const showToast = usePay8Ui((s) => s.showToast);
+  const folders = [
+    { name: "Emergency Fund", saved: 4200, target: 10000 },
+    { name: "New Phone", saved: 1850, target: 45000 },
+    { name: "Holiday Trip", saved: 7600, target: 25000 },
+  ];
+
+  return (
+    <div className="space-y-5 px-4 py-4">
+      <section className="rounded-3xl border border-border bg-card p-5 pay8-elev-1">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Save8</h1>
+            <p className="mt-1 text-xs text-muted-foreground">Create savings folders and fill each jar over time.</p>
+          </div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <PiggyBank className="h-6 w-6" />
+          </div>
+        </div>
+        <SavingsJarLarge />
+        <button
+          onClick={() => showToast({ title: "Savings folder created", description: "Demo folder is ready", variant: "success" })}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+        >
+          <FolderPlus className="h-4 w-4" /> Create savings folder
+        </button>
+      </section>
+
+      <section>
+        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Savings folders</h2>
+        <div className="space-y-2">
+          {folders.map((folder) => {
+            const progress = Math.round((folder.saved / folder.target) * 100);
+            return (
+              <div key={folder.name} className="rounded-2xl border border-border bg-card p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-foreground">{folder.name}</div>
+                  <div className="font-mono text-xs font-semibold text-primary">{progress}%</div>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {formatCurrency(folder.saved)} saved of {formatCurrency(folder.target)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export function CommuteScreen() {
+  const card = usePay8((s) => s.card);
+  return (
+    <div className="space-y-5 px-4 py-4">
+      <section className="relative overflow-hidden rounded-3xl p-5 text-white pay8-gradient-navy pay8-elev-2">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-white/70">Commute card</div>
+            <h1 className="mt-1 text-2xl font-bold">Beep Card</h1>
+          </div>
+          <Train className="h-8 w-8 text-white/80" />
+        </div>
+        <div className="relative mt-6">
+          <div className="text-xs text-white/70">Transit balance</div>
+          <div className="font-mono text-3xl font-bold">{formatCurrency(card.balance)}</div>
+        </div>
+        <div className="relative mt-5 grid grid-cols-2 gap-2">
+          <div className="rounded-2xl bg-white/10 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-white/60">Status</div>
+            <div className="text-sm font-semibold capitalize">{card.status}</div>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-white/60">Auto reload</div>
+            <div className="text-sm font-semibold">{card.autoReload ? "Enabled" : "Off"}</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Transit options</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <Wallet className="h-5 w-5 text-primary" />
+            <div className="mt-2 text-sm font-semibold text-foreground">Top up</div>
+            <div className="text-xs text-muted-foreground">Load from PAY8 wallet</div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <CreditCard className="h-5 w-5 text-primary" />
+            <div className="mt-2 text-sm font-semibold text-foreground">Fare history</div>
+            <div className="text-xs text-muted-foreground">Trips and reloads</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SavingsJarLarge() {
+  return (
+    <div className="relative mx-auto mt-6 h-40 w-40">
+      <div className="absolute left-9 top-5 h-28 w-24 rounded-b-3xl rounded-t-xl border-4 border-primary/20 bg-primary/5">
+        <div className="absolute left-5 right-5 top-[-13px] h-4 rounded-t-lg border-4 border-primary/20 border-b-0 bg-card" />
+        <div className="absolute bottom-0 left-0 right-0 h-14 rounded-b-2xl bg-primary/15" />
+        {[16, 34, 52, 68].map((left, index) => (
+          <span key={left} className="absolute bottom-4 h-4 w-4 rounded-full bg-amber-400" style={{ left, bottom: 18 + (index % 2) * 14 }} />
+        ))}
+      </div>
+      <div className="absolute bottom-7 left-4 flex h-10 w-16 rotate-[-10deg] items-center justify-center rounded-md border border-primary/20 bg-emerald-50 font-bold text-primary">
+        ₱
+      </div>
+      <div className="absolute bottom-5 right-1 flex h-10 w-16 rotate-6 items-center justify-center rounded-md border border-primary/20 bg-emerald-50 font-bold text-primary">
+        ₱
       </div>
     </div>
   );

@@ -23,7 +23,9 @@ const SCREEN_TITLES: Partial<Record<ScreenId, string>> = {
   cashin: "Cash In",
   paybills: "Pay Bills",
   settings: "Settings",
-  card: "PAY8 Card",
+  card: "MyCard",
+  save8: "Save8",
+  commute: "Commute",
 };
 
 interface AppShellProps {
@@ -56,11 +58,11 @@ export function AppShell({ children }: AppShellProps) {
   const canGoBack = screenStack.length > 1 && !isTabScreen;
 
   return (
-    <div className="relative h-full w-full bg-background text-foreground">
+    <div className="relative flex h-full w-full flex-col bg-background pt-10 text-foreground">
       <div className="pointer-events-none fixed inset-0 pay8-gradient-mesh" />
 
       {/* Phone-frame container — tablet & desktop center the phone; mobile is full screen */}
-      <div className="relative mx-auto flex h-full min-h-0 w-full max-w-md flex-col">
+      <div className="relative mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col">
         {!isFullScreen && (
           <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-md">
             {canGoBack && (
@@ -75,20 +77,7 @@ export function AppShell({ children }: AppShellProps) {
             <h1 className="flex-1 text-base font-semibold text-foreground">
               {SCREEN_TITLES[screen] ?? ""}
             </h1>
-            {!isTabScreen && (
-              <button
-                onClick={() => navigate("inbox")}
-                className="relative rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Notifications"
-              >
-                <Inbox className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-            )}
+            {!isTabScreen && <div className="h-8 w-8" aria-hidden="true" />}
           </header>
         )}
 

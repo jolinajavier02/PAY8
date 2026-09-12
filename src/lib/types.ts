@@ -10,6 +10,8 @@ export type ScreenId =
   | "send"
   | "bank"
   | "card"
+  | "save8"
+  | "commute"
   | "verify"
   | "cashin"
   | "paybills"

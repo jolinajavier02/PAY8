@@ -6,15 +6,15 @@ import { BalanceCard } from "../BalanceCard";
 import { formatCurrency, PROMOS } from "@/lib/pay8-utils";
 import { motion } from "framer-motion";
 import {
-  Send, Lightbulb, Wallet, Coins, Train, Gift, ChevronRight, CreditCard, Zap, Megaphone, TrendingUp,
-  Compass, Grid3X3,
+  Send, Lightbulb, Coins, Train, Gift, ChevronRight, CreditCard, Zap, Megaphone, TrendingUp,
+  Compass, Grid3X3, FolderPlus, Wallet,
 } from "lucide-react";
 import type { ScreenId } from "@/lib/types";
 
 const ADS = [
   {
     id: "ad1",
-    title: "Save with PAY8 GSave",
+    title: "Save with PAY8 Save8",
     body: "Up to 2.5% APY on automated savings — no minimum balance.",
     badge: "Sponsored",
     tint: "from-primary/10 to-primary/5",
@@ -22,17 +22,21 @@ const ADS = [
   {
     id: "ad2",
     title: "Borrow up to ₱25,000 instantly",
-    body: "GLoan — apply in 60 seconds, money in your wallet in 5 minutes.",
+    body: "Loan8 — apply in 60 seconds, money in your wallet in 5 minutes.",
     badge: "Sponsored",
     tint: "from-emerald-500/10 to-emerald-500/5",
   },
 ];
 
+const STOCK_HIGHLIGHTS = [
+  { symbol: "PSEi", name: "Philippine Stock Exchange", price: "6,482.15", move: "+0.84%" },
+  { symbol: "BDO", name: "BDO Unibank", price: "₱148.20", move: "+1.12%" },
+  { symbol: "AC", name: "Ayala Corp", price: "₱621.00", move: "-0.35%" },
+];
+
 export function HomeScreen() {
-  const transactions = usePay8((s) => s.transactions);
   const card = usePay8((s) => s.card);
   const verification = usePay8((s) => s.verification);
-  const balance = usePay8((s) => s.balance);
   const navigate = usePay8Ui((s) => s.navigate);
 
   // Hide verification banner once verified
@@ -45,7 +49,7 @@ export function HomeScreen() {
     { id: "paybills", label: "Load8", icon: Zap },     // mobile prepaid load
     { id: "verify", label: "Invest8", icon: TrendingUp },
     { id: "transactions", label: "Explore8", icon: Compass },
-    { id: "card", label: "Commute", icon: Train },     // transit
+    { id: "commute", label: "Commute", icon: Train },     // transit
     { id: "transactions", label: "Rewards", icon: Gift }, // loyalty
     { id: "settings", label: "Others", icon: Grid3X3 },
   ];
@@ -80,36 +84,55 @@ export function HomeScreen() {
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Money tools</h2>
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => navigate("transactions")}
+            onClick={() => navigate("save8")}
             className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left pay8-elev-1 transition-all hover:bg-muted active:scale-[0.98]"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Wallet className="h-4 w-4" strokeWidth={2.2} />
-              </div>
-              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
+            <SavingsJarPreview />
             <div className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">Save8</div>
-            <div className="mt-0.5 font-mono text-lg font-bold text-foreground">{formatCurrency(balance)}</div>
-            <div className="mt-1 text-[10px] text-muted-foreground">Goals and savings</div>
+            <div className="mt-0.5 text-sm font-bold text-foreground">Create savings folders</div>
+            <div className="mt-1 text-[10px] text-muted-foreground">Fill jars with coins and bills</div>
           </button>
 
           <button
-            onClick={() => navigate("profile")}
+            onClick={() => navigate("card")}
             className="relative overflow-hidden rounded-2xl p-4 text-left text-white pay8-gradient-navy pay8-elev-1 transition-all active:scale-[0.98]"
           >
-            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-            <div className="absolute -left-6 -bottom-6 h-20 w-20 rounded-full bg-amber-400/15 blur-2xl" />
-            <div className="relative flex items-center justify-between">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white">
-                <CreditCard className="h-4 w-4" strokeWidth={2.2} />
-              </div>
-              <div className="h-5 w-6 rounded-sm bg-gradient-to-br from-amber-200 to-amber-500" />
-            </div>
+            <StackedCardPreview />
             <div className="relative mt-3 text-[10px] uppercase tracking-wider text-white/70">MyCard</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{formatCurrency(card.balance)}</div>
             <div className="mt-1 text-[10px] text-white/70">Virtual and physical card</div>
           </button>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-2 flex items-center justify-between px-1">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stock highlights</h2>
+          <button onClick={() => navigate("verify")} className="text-[10px] font-semibold text-primary">Invest8</button>
+        </div>
+        <div className="space-y-2">
+          {STOCK_HIGHLIGHTS.map((stock) => {
+            const isUp = stock.move.startsWith("+");
+            return (
+              <button
+                key={stock.symbol}
+                onClick={() => navigate("verify")}
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left transition-all hover:bg-muted/50 active:scale-[0.99]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">
+                  {stock.symbol.slice(0, 3)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-foreground">{stock.symbol}</div>
+                  <div className="truncate text-xs text-muted-foreground">{stock.name}</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-mono text-sm font-semibold text-foreground">{stock.price}</div>
+                  <div className={isUp ? "text-xs font-semibold text-accent" : "text-xs font-semibold text-destructive"}>{stock.move}</div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -158,6 +181,39 @@ export function HomeScreen() {
           ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+function SavingsJarPreview() {
+  return (
+    <div className="relative h-16">
+      <div className="absolute left-2 top-1 h-14 w-12 rounded-b-2xl rounded-t-lg border-2 border-primary/25 bg-primary/5">
+        <div className="absolute left-2 right-2 top-[-7px] h-2 rounded-t-md border-2 border-primary/25 border-b-0 bg-card" />
+        <div className="absolute bottom-2 left-1 right-1 h-5 rounded-b-xl bg-primary/15" />
+        <div className="absolute bottom-3 left-2 h-2 w-2 rounded-full bg-amber-400" />
+        <div className="absolute bottom-4 right-2 h-2 w-2 rounded-full bg-amber-300" />
+        <div className="absolute bottom-6 left-4 h-2 w-2 rounded-full bg-amber-500" />
+      </div>
+      <div className="absolute bottom-2 right-1 flex h-8 w-11 rotate-[-8deg] items-center justify-center rounded-md border border-primary/20 bg-emerald-50 text-[10px] font-bold text-primary">
+        ₱
+      </div>
+      <FolderPlus className="absolute right-1 top-0 h-4 w-4 text-primary" />
+    </div>
+  );
+}
+
+function StackedCardPreview() {
+  return (
+    <div className="relative h-16">
+      <div className="absolute right-0 top-1 h-11 w-20 rotate-6 rounded-xl bg-white/18" />
+      <div className="absolute left-0 top-3 h-11 w-20 -rotate-6 rounded-xl bg-white/12" />
+      <div className="absolute left-2 top-1 h-12 w-24 rounded-xl bg-white/20 p-2">
+        <div className="h-3 w-4 rounded-sm bg-gradient-to-br from-amber-200 to-amber-500" />
+        <div className="mt-3 h-1.5 w-14 rounded-full bg-white/60" />
+        <div className="mt-1 h-1 w-9 rounded-full bg-white/35" />
+      </div>
+      <CreditCard className="absolute right-1 top-0 h-4 w-4 text-white/80" />
     </div>
   );
 }
