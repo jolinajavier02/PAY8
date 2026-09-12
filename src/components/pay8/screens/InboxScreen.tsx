@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { formatCurrency, formatDateTime, dateGroupKey } from "@/lib/pay8-utils";
-import type { Notification } from "@/lib/types";
-import { ArrowDownLeft, ArrowUpRight, BellOff, Receipt } from "lucide-react";
+import type { Notification, Transaction } from "@/lib/types";
+import { ArrowDownLeft, ArrowUpRight, BellOff, Download, Receipt, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,6 +19,7 @@ export function InboxScreen() {
   const markAllRead = usePay8((s) => s.markAllNotificationsRead);
   const markRead = usePay8((s) => s.markNotificationRead);
   const navigate = usePay8Ui((s) => s.navigate);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   // Only transaction-related notifications
   const txNotifications = notifications.filter((n) => n.type === "transaction");
@@ -59,7 +61,7 @@ export function InboxScreen() {
               return (
                 <button
                   key={t.id}
-                  onClick={() => navigate("transactions")}
+                  onClick={() => setSelectedTx(t)}
                   className={cn(
                     "w-full rounded-2xl border bg-card p-3 text-left pay8-elev-1",
                     isReceive ? "border-accent/20" : "border-border",
@@ -100,6 +102,54 @@ export function InboxScreen() {
           <NotificationList notifications={txNotifications} onRead={markRead} onSelect={() => navigate("transactions")} />
         )}
       </section>
+
+      {selectedTx && <InboxTransactionSheet tx={selectedTx} onClose={() => setSelectedTx(null)} />}
+    </div>
+  );
+}
+
+function InboxTransactionSheet({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
+  const outflow = !["receive", "bankin", "cashin"].includes(tx.type);
+  return (
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-t-3xl border-t border-border bg-card p-5 pb-8 shadow-2xl">
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+        <div className="text-center">
+          <div className="font-mono text-2xl font-bold text-foreground">
+            {outflow ? "−" : "+"}{formatCurrency(tx.amount)}
+          </div>
+          <div className="mt-1 text-sm text-muted-foreground">{tx.counterparty}</div>
+        </div>
+        <div className="mt-5 space-y-2 rounded-2xl border border-border bg-background p-4 text-sm">
+          <DetailRow label="Reference" value={tx.reference} />
+          <DetailRow label="Timestamp" value={new Date(tx.createdAt).toLocaleString("en-PH")} />
+          <DetailRow label="Full name" value={tx.counterparty} />
+          {tx.counterpartyHandle && <DetailRow label="Account / Number" value={tx.counterpartyHandle} />}
+          <DetailRow label="Amount" value={formatCurrency(tx.amount)} />
+          <DetailRow label="Status" value={tx.status} />
+          {tx.note && <DetailRow label="Note" value={tx.note} />}
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <button className="rounded-2xl border border-border bg-background py-3 text-sm font-medium hover:bg-muted">
+            <Share2 className="mr-1 inline h-4 w-4" /> Share
+          </button>
+          <button className="rounded-2xl border border-border bg-background py-3 text-sm font-medium hover:bg-muted">
+            <Download className="mr-1 inline h-4 w-4" /> Save
+          </button>
+          <button onClick={onClose} className="rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="break-all text-right font-mono text-foreground">{value}</span>
     </div>
   );
 }

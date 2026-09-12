@@ -71,27 +71,79 @@ export function NotificationsScreen() {
 
 export function Save8Screen() {
   const showToast = usePay8Ui((s) => s.showToast);
-  const folders = [
-    { name: "Emergency Fund", saved: 4200, target: 10000 },
-    { name: "New Phone", saved: 1850, target: 45000 },
-    { name: "Holiday Trip", saved: 7600, target: 25000 },
-  ];
+  const [folders, setFolders] = useState<Array<{ id: string; name: string; saved: number; target: number; lockedUntil?: string }>>([]);
+  const [name, setName] = useState("");
+  const [target, setTarget] = useState("");
+  const [lockedUntil, setLockedUntil] = useState("");
+  const [depositAmount, setDepositAmount] = useState<Record<string, string>>({});
+
+  const createFolder = () => {
+    const cleanName = name.trim();
+    const goal = Number(target) || 0;
+    if (!cleanName || goal <= 0) {
+      showToast({ title: "Folder needs a name and target", variant: "warning" });
+      return;
+    }
+    setFolders((items) => [
+      ...items,
+      {
+        id: `save8_${Date.now()}`,
+        name: cleanName,
+        saved: 0,
+        target: goal,
+        lockedUntil: lockedUntil || undefined,
+      },
+    ]);
+    setName("");
+    setTarget("");
+    setLockedUntil("");
+    showToast({ title: "Savings folder created", description: cleanName, variant: "success" });
+  };
+
+  const addMoney = (id: string) => {
+    const amount = Number(depositAmount[id]) || 0;
+    if (amount <= 0) return;
+    setFolders((items) => items.map((folder) => folder.id === id ? { ...folder, saved: folder.saved + amount } : folder));
+    setDepositAmount((amounts) => ({ ...amounts, [id]: "" }));
+    showToast({ title: "Money added", description: formatCurrency(amount), variant: "success" });
+  };
 
   return (
     <div className="space-y-5 px-4 py-4">
       <section className="rounded-3xl border border-border bg-card p-5 pay8-elev-1">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Save8</h1>
-            <p className="mt-1 text-xs text-muted-foreground">Create savings folders and fill each jar over time.</p>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <PiggyBank className="h-6 w-6" />
-          </div>
+        <h1 className="text-center text-xl font-bold text-foreground">Save8</h1>
+        <SavingsJarLarge filled={false} />
+        <p className="mt-2 text-center text-xs text-muted-foreground">Create folders for specific goals. Locked folders only allow deposits until the unlock date.</p>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold text-foreground">Create savings folder</h2>
+        <div className="mt-3 space-y-2">
+          <input
+            placeholder="Folder name, e.g. Tuition"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none"
+          />
+          <input
+            inputMode="decimal"
+            placeholder="Target amount"
+            value={target}
+            onChange={(e) => setTarget(e.target.value.replace(/[^0-9.]/g, ""))}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none"
+          />
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Lock until
+            <input
+              type="date"
+              value={lockedUntil}
+              onChange={(e) => setLockedUntil(e.target.value)}
+              className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none"
+            />
+          </label>
         </div>
-        <SavingsJarLarge />
         <button
-          onClick={() => showToast({ title: "Savings folder created", description: "Demo folder is ready", variant: "success" })}
+          onClick={createFolder}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
         >
           <FolderPlus className="h-4 w-4" /> Create savings folder
@@ -101,19 +153,41 @@ export function Save8Screen() {
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Savings folders</h2>
         <div className="space-y-2">
-          {folders.map((folder) => {
+          {folders.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
+              No folders yet. Create one and name it after what you are saving for.
+            </div>
+          ) : folders.map((folder) => {
             const progress = Math.round((folder.saved / folder.target) * 100);
+            const locked = folder.lockedUntil ? new Date(folder.lockedUntil) > new Date() : false;
             return (
               <div key={folder.name} className="rounded-2xl border border-border bg-card p-3">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold text-foreground">{folder.name}</div>
-                  <div className="font-mono text-xs font-semibold text-primary">{progress}%</div>
+                  <div className="font-mono text-xs font-semibold text-primary">{Math.min(progress, 100)}%</div>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(progress, 100)}%` }} />
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground">
                   {formatCurrency(folder.saved)} saved of {formatCurrency(folder.target)}
+                </div>
+                {folder.lockedUntil && (
+                  <div className={locked ? "mt-1 text-xs text-amber-600" : "mt-1 text-xs text-accent"}>
+                    {locked ? `Locked until ${folder.lockedUntil}. Deposits only.` : "Unlocked. Withdrawals available."}
+                  </div>
+                )}
+                <div className="mt-3 flex gap-2">
+                  <input
+                    inputMode="decimal"
+                    placeholder="Add money"
+                    value={depositAmount[folder.id] ?? ""}
+                    onChange={(e) => setDepositAmount((amounts) => ({ ...amounts, [folder.id]: e.target.value.replace(/[^0-9.]/g, "") }))}
+                    className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
+                  />
+                  <button onClick={() => addMoney(folder.id)} className="rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground">
+                    Add
+                  </button>
                 </div>
               </div>
             );
@@ -172,22 +246,21 @@ export function CommuteScreen() {
   );
 }
 
-function SavingsJarLarge() {
+function SavingsJarLarge({ filled }: { filled: boolean }) {
   return (
     <div className="relative mx-auto mt-6 h-40 w-40">
       <div className="absolute left-9 top-5 h-28 w-24 rounded-b-3xl rounded-t-xl border-4 border-primary/20 bg-primary/5">
         <div className="absolute left-5 right-5 top-[-13px] h-4 rounded-t-lg border-4 border-primary/20 border-b-0 bg-card" />
-        <div className="absolute bottom-0 left-0 right-0 h-14 rounded-b-2xl bg-primary/15" />
-        {[16, 34, 52, 68].map((left, index) => (
-          <span key={left} className="absolute bottom-4 h-4 w-4 rounded-full bg-amber-400" style={{ left, bottom: 18 + (index % 2) * 14 }} />
-        ))}
+        {filled && (
+          <>
+            <div className="absolute bottom-0 left-0 right-0 h-14 rounded-b-2xl bg-primary/15" />
+            {[16, 34, 52, 68].map((left, index) => (
+              <span key={left} className="absolute bottom-4 h-4 w-4 rounded-full bg-amber-400" style={{ left, bottom: 18 + (index % 2) * 14 }} />
+            ))}
+          </>
+        )}
       </div>
-      <div className="absolute bottom-7 left-4 flex h-10 w-16 rotate-[-10deg] items-center justify-center rounded-md border border-primary/20 bg-emerald-50 font-bold text-primary">
-        ₱
-      </div>
-      <div className="absolute bottom-5 right-1 flex h-10 w-16 rotate-6 items-center justify-center rounded-md border border-primary/20 bg-emerald-50 font-bold text-primary">
-        ₱
-      </div>
+      <PiggyBank className="absolute bottom-3 right-2 h-7 w-7 text-primary/70" />
     </div>
   );
 }

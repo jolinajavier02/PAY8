@@ -107,28 +107,30 @@ export function HomeScreen() {
 
       <section>
         <div className="mb-2 flex items-center justify-between px-1">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stock highlights</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invest8 highlights</h2>
           <button onClick={() => navigate("verify")} className="text-[10px] font-semibold text-primary">Invest8</button>
         </div>
-        <div className="space-y-2">
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pay8-scroll-snap">
           {STOCK_HIGHLIGHTS.map((stock) => {
             const isUp = stock.move.startsWith("+");
             return (
               <button
                 key={stock.symbol}
                 onClick={() => navigate("verify")}
-                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left transition-all hover:bg-muted/50 active:scale-[0.99]"
+                className="pay8-scroll-snap-item min-w-[260px] rounded-2xl border border-border bg-card p-4 text-left transition-all hover:bg-muted/50 active:scale-[0.99]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">
-                  {stock.symbol.slice(0, 3)}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">
+                    {stock.symbol.slice(0, 3)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-foreground">{stock.symbol}</div>
+                    <div className="truncate text-xs text-muted-foreground">{stock.name}</div>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-foreground">{stock.symbol}</div>
-                  <div className="truncate text-xs text-muted-foreground">{stock.name}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-sm font-semibold text-foreground">{stock.price}</div>
-                  <div className={isUp ? "text-xs font-semibold text-accent" : "text-xs font-semibold text-destructive"}>{stock.move}</div>
+                <div className="mt-3 flex items-end justify-between">
+                  <div className="font-mono text-lg font-semibold text-foreground">{stock.price}</div>
+                  <div className={isUp ? "text-sm font-semibold text-accent" : "text-sm font-semibold text-destructive"}>{stock.move}</div>
                 </div>
               </button>
             );
@@ -153,6 +155,30 @@ export function HomeScreen() {
           ))}
         </div>
       </section>
+
+      <FeatureCarousel
+        title="Explore8"
+        items={[
+          { title: "Nearby deals", subtitle: "Food, transport, and PAY8 partner rewards." },
+          { title: "Travel perks", subtitle: "Find promos for trips and city passes." },
+        ]}
+      />
+
+      <FeatureCarousel
+        title="Paybills"
+        items={[
+          { title: "Utilities", subtitle: "MERALCO, Maynilad, PLDT, Globe, and more." },
+          { title: "Government", subtitle: "Pay SSS, BIR, PhilHealth, and Pag-IBIG." },
+        ]}
+      />
+
+      <FeatureCarousel
+        title="Load8"
+        items={[
+          { title: "Mobile load", subtitle: "Globe, Smart, DITO, TNT, and TM." },
+          { title: "Data bundles", subtitle: "Daily, weekly, and gaming packs." },
+        ]}
+      />
 
       {/* Ads / sponsored section */}
       <section>
@@ -182,6 +208,27 @@ export function HomeScreen() {
         </div>
       </section>
     </div>
+  );
+}
+
+function FeatureCarousel({ title, items }: { title: string; items: Array<{ title: string; subtitle: string }> }) {
+  return (
+    <section>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
+      </div>
+      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pay8-scroll-snap">
+        {items.map((item) => (
+          <button
+            key={item.title}
+            className="pay8-scroll-snap-item min-w-[260px] rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-left"
+          >
+            <div className="text-sm font-semibold text-foreground">{item.title}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{item.subtitle}</div>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

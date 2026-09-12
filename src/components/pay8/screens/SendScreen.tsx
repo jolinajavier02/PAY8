@@ -4,42 +4,15 @@ import { useState } from "react";
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { formatCurrency, maskPhone } from "@/lib/pay8-utils";
-import { ArrowRight, Banknote, Check, Contact, Plus, Search, User } from "lucide-react";
+import { ArrowRight, Check, Contact, Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-type SendMethod = "pay8" | "bank";
-
 export function SendScreen() {
-  const [method, setMethod] = useState<SendMethod>("pay8");
-
   return (
     <div className="space-y-4 px-4 py-4">
-      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1">
-        <TabButton active={method === "pay8"} onClick={() => setMethod("pay8")}>
-          <User className="h-4 w-4" /> PAY8 User
-        </TabButton>
-        <TabButton active={method === "bank"} onClick={() => setMethod("bank")}>
-          <Banknote className="h-4 w-4" /> Bank Account
-        </TabButton>
-      </div>
-
-      {method === "pay8" ? <SendToPay8 /> : <SendToBank />}
+      <SendToPay8 />
     </div>
-  );
-}
-
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-all",
-        active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-      )}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -58,30 +31,35 @@ function SendToPay8() {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [step, setStep] = useState<"input" | "review" | "done">("input");
-  const [completedTxn, setCompletedTxn] = useState<{ ref: string; amount: number; recipient: string } | null>(null);
+  const [completedTxn, setCompletedTxn] = useState<{ ref: string; amount: number; recipient: string; sender: string } | null>(null);
 
   const amt = parseFloat(amount) || 0;
   const canProceed = recipient.length >= 10 && amt > 0 && amt <= balance;
+  const matchedPayee = payees.find((p) => p.accountNumber.replace(/\D/g, "") === recipient.replace(/\D/g, ""));
+  const receiverName = matchedPayee?.name ?? "PAY8 User";
+  const receiverAccount = matchedPayee?.accountNumber ?? recipient;
+  const senderName = `${profile.firstName} ${profile.lastName}`;
 
   const confirm = () => {
-    openPinPad(`Send ${formatCurrency(amt)} to ${maskPhone(recipient)}`, () => {
+    openPinPad(`Send ${formatCurrency(amt)} to ${receiverName}`, () => {
       const tx = addTxn({
         type: "send",
         status: "completed",
         amount: amt,
-        counterparty: "PAY8 User",
-        counterpartyHandle: maskPhone(recipient),
-        note: note || undefined,
+        counterparty: receiverName,
+        counterpartyHandle: maskPhone(receiverAccount),
+        note: note ? `${note} · From ${senderName}` : `From ${senderName}`,
       });
       adjustBalance(-amt);
+      const timestamp = new Date(tx.createdAt).toLocaleString("en-PH");
       addNotification({
-        title: `Sent ${formatCurrency(amt)}`,
-        body: `To ${maskPhone(recipient)} · Ref ${tx.reference}`,
+        title: `Sent ${formatCurrency(amt)} to ${receiverName}`,
+        body: `From ${senderName} to ${receiverName} (${maskPhone(receiverAccount)}) · ${timestamp} · Ref ${tx.reference}`,
         type: "transaction",
       });
-      setCompletedTxn({ ref: tx.reference, amount: amt, recipient: maskPhone(recipient) });
+      setCompletedTxn({ ref: tx.reference, amount: amt, recipient: receiverName, sender: senderName });
       setStep("done");
-      showToast({ title: "Money sent", description: formatCurrency(amt) + " to " + maskPhone(recipient), variant: "success" });
+      showToast({ title: "Money sent", description: formatCurrency(amt) + " to " + receiverName, variant: "success" });
     });
   };
 
@@ -89,7 +67,7 @@ function SendToPay8() {
     return (
       <SuccessPanel
         title="Money sent successfully"
-        subtitle={`${formatCurrency(completedTxn.amount)} to ${completedTxn.recipient}`}
+        subtitle={`${formatCurrency(completedTxn.amount)} from ${completedTxn.sender} to ${completedTxn.recipient}`}
         reference={completedTxn.ref}
         onDone={() => navigate("home")}
         onSecondary={() => navigate("transactions")}
@@ -197,9 +175,11 @@ function SendToPay8() {
 
       {step === "review" && (
         <ReviewSheet
-          title="Send to PAY8 User"
+          title={`Confirm send to ${receiverName}`}
           rows={[
-            { label: "Recipient", value: maskPhone(recipient) },
+            { label: "Receiver full name", value: receiverName },
+            { label: "Receiver account", value: maskPhone(receiverAccount) },
+            { label: "Sender", value: senderName },
             { label: "Amount", value: formatCurrency(amt) },
             { label: "Note", value: note || "—" },
             { label: "Fee", value: "Free" },
@@ -209,38 +189,6 @@ function SendToPay8() {
           onCancel={() => setStep("input")}
         />
       )}
-    </div>
-  );
-}
-
-function SendToBank() {
-  const navigate = usePay8Ui((s) => s.navigate);
-  return (
-    <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-      <BankTeaser />
-      <p className="text-xs text-muted-foreground">
-        Send money to any Philippine bank account using InstaPay or PESONet. Choose the bank, enter the account details, and review the transfer.
-      </p>
-      <button
-        onClick={() => navigate("bank")}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground pay8-elev-1 active:scale-[0.99]"
-      >
-        Continue to Bank Transfer <ArrowRight className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
-
-function BankTeaser() {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Banknote className="h-5 w-5" />
-      </div>
-      <div>
-        <div className="text-sm font-semibold text-foreground">Transfer to bank</div>
-        <div className="text-xs text-muted-foreground">InstaPay · PESONet · 60+ banks</div>
-      </div>
     </div>
   );
 }

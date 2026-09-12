@@ -7,7 +7,7 @@ import { TransactionGroup } from "../TransactionItem";
 import { formatCurrency } from "@/lib/pay8-utils";
 import type { Transaction, TransactionType } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Share2 } from "lucide-react";
+import { Download, Search, X, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS: { id: TransactionType | "all"; label: string }[] = [
@@ -151,6 +151,9 @@ export function TransactionsScreen() {
               <div className="mt-4 flex gap-2">
                 <button className="flex-1 rounded-2xl border border-border bg-background py-3 text-sm font-medium hover:bg-muted">
                   <Share2 className="mr-1.5 inline h-4 w-4" /> Share receipt
+                </button>
+                <button className="flex-1 rounded-2xl border border-border bg-background py-3 text-sm font-medium hover:bg-muted">
+                  <Download className="mr-1.5 inline h-4 w-4" /> Download
                 </button>
                 <button onClick={() => setSelected(null)} className="flex-1 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground">
                   Close

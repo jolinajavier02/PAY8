@@ -31,7 +31,7 @@ export function CashInScreen() {
 
   const sources: Array<{ id: SourceType; label: string; sub: string; icon: typeof Banknote }> = [
     { id: "bank", label: "Linked Bank", sub: "Free · instant from BPI, BDO, Metrobank", icon: Banknote },
-    { id: "card", label: "Debit / Credit Card", sub: "1.25% fee · Visa / Mastercard", icon: CreditCard },
+    { id: "card", label: "Global Bank", sub: "1.25% fee · international bank rail", icon: CreditCard },
     { id: "otc", label: "Over-the-Counter", sub: "Free · 7-Eleven, Cebuana, Palawan", icon: Store },
   ];
 
@@ -41,7 +41,7 @@ export function CashInScreen() {
         source === "bank"
           ? "BPI •••• 4521"
           : source === "card"
-            ? "Visa •••• 1234"
+            ? "Global Bank •••• 1234"
             : CATALOG.cashInPartners.find((p) => p.code === otcPartner)?.name ?? "OTC";
       const tx = addTxn({
         type: "cashin",
@@ -49,7 +49,7 @@ export function CashInScreen() {
         amount: amt,
         counterparty,
         counterpartyHandle: `Ref ${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
-        note: source === "card" ? `Card cash in · fee ${formatCurrency(fee)}` : undefined,
+        note: source === "card" ? `Global Bank cash in · fee ${formatCurrency(fee)}` : undefined,
         fee: source === "card" ? fee : 0,
       });
       adjustBalance(amt);
@@ -158,7 +158,7 @@ export function CashInScreen() {
         {step === "review" && (
           <ReviewInline
             rows={[
-              { label: "Source", value: source === "bank" ? "BPI •••• 4521" : source === "card" ? "Visa •••• 1234" : CATALOG.cashInPartners.find((p) => p.code === otcPartner)?.name ?? "" },
+              { label: "Source", value: source === "bank" ? "BPI •••• 4521" : source === "card" ? "Global Bank •••• 1234" : CATALOG.cashInPartners.find((p) => p.code === otcPartner)?.name ?? "" },
               { label: "Amount", value: formatCurrency(amt) },
               ...(source === "card" ? [{ label: "Card fee", value: formatCurrency(fee) }] : []),
               { label: "Total", value: formatCurrency(total), highlight: true },

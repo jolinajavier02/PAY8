@@ -177,6 +177,13 @@ export function LoginScreen() {
                   </button>
                 </div>
 
+                <button
+                  onClick={() => showToast({ title: "Freeze account", description: "Call +63 (2) 8888-1234 to freeze PAY8 after phone theft or SIM loss.", variant: "warning" })}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary"
+                >
+                  <ShieldCheck className="h-4 w-4" /> Freeze account
+                </button>
+
                 <p className="text-center text-[10px] text-muted-foreground">
                   By continuing, you agree to PAY8's Terms of Service and Privacy Policy.
                 </p>

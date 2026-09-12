@@ -29,9 +29,9 @@ export function Pay8CardScreen() {
   const canLoad = amt > 0 && amt <= balance;
 
   const confirmLoad = () => {
-    openPinPad(`Load ${formatCurrency(amt)} to PAY8 Card`, () => {
+    openPinPad(`Load ${formatCurrency(amt)} to MyCard`, () => {
       loadCard(amt);
-      showToast({ title: "Card loaded", description: formatCurrency(amt) + " added to PAY8 Card", variant: "success" });
+      showToast({ title: "Card loaded", description: formatCurrency(amt) + " added to MyCard", variant: "success" });
       setLoadAmount("");
       setShowAddFunds(false);
       setDone(true);
