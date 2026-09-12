@@ -80,9 +80,7 @@ export function LoginScreen() {
     <div className="relative min-h-screen bg-background pt-8">
       {/* Header with logo */}
       <div className="px-5 pt-14 pb-6 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl pay8-gradient-navy text-white pay8-elev-1">
-          <span className="text-2xl font-bold">8</span>
-        </div>
+        <img src="/logo.svg" alt="PAY8 logo" className="mx-auto h-16 w-16 object-contain pay8-elev-1" />
         <h1 className="mt-3 text-2xl font-bold text-foreground">PAY8</h1>
         <p className="text-xs text-muted-foreground">Your money, your commute, one tap.</p>
       </div>

@@ -23,14 +23,14 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       transition={{ duration: 0.5, ease: "easeInOut" }}
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white"
     >
-      <motion.div
+      <motion.img
         initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.1 }}
-        className="flex h-24 w-24 items-center justify-center rounded-3xl text-white pay8-gradient-navy pay8-elev-2"
-      >
-        <span className="text-5xl font-bold">8</span>
-      </motion.div>
+        src="/logo.svg"
+        alt="PAY8 logo"
+        className="h-28 w-28 object-contain pay8-elev-2"
+      />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

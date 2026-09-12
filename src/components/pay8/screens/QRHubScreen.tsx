@@ -20,7 +20,7 @@ export function QRHubScreen() {
       {/* Brand header */}
       <header className="pay8-gradient-navy px-5 pt-12 pb-5 text-white">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 font-bold text-sm">8</div>
+          <img src="/logo.svg" alt="PAY8 logo" className="h-8 w-8 rounded-full object-contain bg-white" />
           <span className="text-sm font-semibold uppercase tracking-wider text-white/80">PAY8 QR</span>
         </div>
         <h1 className="mt-4 text-2xl font-bold">
@@ -107,7 +107,7 @@ function GeneratePanel() {
 
         <div className="relative mt-5">
           <div className="absolute -inset-2 rounded-3xl bg-primary/5" />
-          <Pay8QR value={payload} size={220} className="relative" includeLogo={true} logoUrl="/icons/icon-512.png" />
+          <Pay8QR value={payload} size={220} className="relative" includeLogo={true} logoUrl="/logo.svg" />
         </div>
 
         {mode === "request" && (

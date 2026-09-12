@@ -81,7 +81,7 @@ export function Pay8CardScreen() {
           <div className="relative flex h-full flex-col justify-between p-5 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 font-bold text-xs">8</div>
+                <img src="/logo.svg" alt="PAY8 logo" className="h-6 w-6 rounded-full object-contain bg-white" />
                 <span className="text-xs font-medium uppercase tracking-wider text-white/80">MyCard</span>
               </div>
               <span className="text-[10px] uppercase tracking-wider text-white/60">Physical · Online</span>
