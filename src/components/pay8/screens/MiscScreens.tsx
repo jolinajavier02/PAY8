@@ -5,10 +5,11 @@ import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { CATALOG } from "@/lib/pay8-store";
 import { formatCurrency, formatDateTime } from "@/lib/pay8-utils";
 import { motion } from "framer-motion";
-import { ArrowRight, BellOff, Check, ChevronRight, CreditCard, FolderPlus, Lightbulb, PiggyBank, Plus, Search, Train, Wallet } from "lucide-react";
+import { ArrowRight, BellOff, Check, ChevronRight, CreditCard, FolderPlus, Lightbulb, Plus, Search, Wallet } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SuccessPanel } from "./SendScreen";
+import { CommuteCardArtwork } from "../CardArtwork";
 
 export function NotificationsScreen() {
   const notifications = usePay8((s) => s.notifications);
@@ -202,29 +203,9 @@ export function CommuteScreen() {
   const card = usePay8((s) => s.card);
   return (
     <div className="space-y-5 px-4 py-4">
-      <section className="relative overflow-hidden rounded-3xl p-5 text-white pay8-gradient-navy pay8-elev-2">
-        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
-        <div className="relative flex items-center justify-between">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-white/70">Commute card</div>
-            <h1 className="mt-1 text-2xl font-bold">Beep Card</h1>
-          </div>
-          <Train className="h-8 w-8 text-white/80" />
-        </div>
-        <div className="relative mt-6">
-          <div className="text-xs text-white/70">Transit balance</div>
-          <div className="font-mono text-3xl font-bold">{formatCurrency(card.balance)}</div>
-        </div>
-        <div className="relative mt-5 grid grid-cols-2 gap-2">
-          <div className="rounded-2xl bg-white/10 p-3">
-            <div className="text-[10px] uppercase tracking-wider text-white/60">Status</div>
-            <div className="text-sm font-semibold capitalize">{card.status}</div>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-3">
-            <div className="text-[10px] uppercase tracking-wider text-white/60">Auto reload</div>
-            <div className="text-sm font-semibold">{card.autoReload ? "Enabled" : "Off"}</div>
-          </div>
-        </div>
+      <section>
+        <div className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">PAY8 commute card</div>
+        <CommuteCardArtwork balance={formatCurrency(card.balance)} />
       </section>
 
       <section>
@@ -249,18 +230,13 @@ export function CommuteScreen() {
 function SavingsJarLarge({ filled }: { filled: boolean }) {
   return (
     <div className="relative mx-auto mt-6 h-40 w-40">
-      <div className="absolute left-9 top-5 h-28 w-24 rounded-b-3xl rounded-t-xl border-4 border-primary/20 bg-primary/5">
-        <div className="absolute left-5 right-5 top-[-13px] h-4 rounded-t-lg border-4 border-primary/20 border-b-0 bg-card" />
-        {filled && (
-          <>
-            <div className="absolute bottom-0 left-0 right-0 h-14 rounded-b-2xl bg-primary/15" />
-            {[16, 34, 52, 68].map((left, index) => (
-              <span key={left} className="absolute bottom-4 h-4 w-4 rounded-full bg-amber-400" style={{ left, bottom: 18 + (index % 2) * 14 }} />
-            ))}
-          </>
-        )}
-      </div>
-      <PiggyBank className="absolute bottom-3 right-2 h-7 w-7 text-primary/70" />
+      <div className="absolute inset-0 rounded-full bg-amber-300/20 blur-2xl" />
+      <img src="/Save8.png" alt="Save8 jar" className="relative mx-auto h-36 w-auto object-contain drop-shadow-lg" />
+      {filled && (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+          Filling
+        </div>
+      )}
     </div>
   );
 }
@@ -397,7 +373,7 @@ export function PayBillsScreen() {
       </div>
 
       {Object.entries(
-        filtered.reduce<Record<string, typeof billers>>((acc, b) => {
+        filtered.reduce<Record<string, Array<(typeof billers)[number]>>>((acc, b) => {
           if (!acc[b.category]) acc[b.category] = [];
           acc[b.category].push(b);
           return acc;

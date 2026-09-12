@@ -9,9 +9,11 @@ import { ArrowDownLeft, CreditCard, Eye, EyeOff, Plus, Snowflake, Wifi, Smartpho
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { SuccessPanel } from "./SendScreen";
+import { Pay8CardArtwork } from "../CardArtwork";
 
 export function Pay8CardScreen() {
   const card = usePay8((s) => s.card);
+  const profile = usePay8((s) => s.profile);
   const balance = usePay8((s) => s.balance);
   const loadCard = usePay8((s) => s.loadCard);
   const toggleFreeze = usePay8((s) => s.toggleCardFreeze);
@@ -27,6 +29,8 @@ export function Pay8CardScreen() {
 
   const amt = parseFloat(loadAmount) || 0;
   const canLoad = amt > 0 && amt <= balance;
+  const displayNumber = showNumber ? card.fullNumber.replace(/(.{4})/g, "$1 ").trim() : `•••• •••• •••• ${card.number}`;
+  const cardholderName = `${profile.firstName} ${profile.lastName}`.trim();
 
   const confirmLoad = () => {
     openPinPad(`Load ${formatCurrency(amt)} to MyCard`, () => {
@@ -57,62 +61,35 @@ export function Pay8CardScreen() {
       <section>
         <div className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Physical and online cards</div>
         <motion.div
-        initial={{ opacity: 0, y: 12, rotateX: 12 }}
-        animate={{ opacity: 1, y: 0, rotateX: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative"
-        style={{ perspective: 1000 }}
-      >
-        <div className="relative aspect-[1.6/1] w-full overflow-hidden rounded-3xl shadow-lg shadow-primary/20">
-          <div className="absolute inset-0 pay8-gradient-navy" />
-          <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -left-10 -bottom-14 h-32 w-32 rounded-full bg-amber-400/15 blur-3xl" />
-
-          <div className="absolute right-5 top-5 h-8 w-10 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" />
-
+          initial={{ opacity: 0, y: 12, rotateX: 12 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="relative"
+          style={{ perspective: 1000 }}
+        >
+          <Pay8CardArtwork
+            balance={formatCurrency(card.balance)}
+            status={card.status}
+            holder={cardholderName}
+            number={displayNumber}
+            expiry={card.expiry}
+            cvv={card.cvv}
+            reveal={showNumber}
+          />
           {card.status === "frozen" && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-md">
-              <div className="rounded-2xl bg-black/40 px-4 py-2 text-sm font-semibold text-cyan-200">
+            <div className="absolute inset-x-0 top-0 z-10 flex aspect-[1.6/1] items-center justify-center rounded-[1.35rem] bg-black/35 backdrop-blur-sm">
+              <div className="rounded-2xl bg-black/45 px-4 py-2 text-sm font-semibold text-cyan-100">
                 <Snowflake className="mr-1.5 inline h-4 w-4" /> Card frozen
               </div>
             </div>
           )}
-
-          <div className="relative flex h-full flex-col justify-between p-5 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img src="/logo-white.jpeg" alt="PAY8 logo" className="pay8-logo h-6 w-6" />
-                <span className="text-xs font-medium uppercase tracking-wider text-white/80">MyCard</span>
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-white/60">Physical · Online</span>
-            </div>
-
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-white/70">Card balance</div>
-              <div className="font-mono text-3xl font-bold">{formatCurrency(card.balance)}</div>
-            </div>
-
-            <div className="flex items-end justify-between">
-              <div>
-                <div className="font-mono text-sm tracking-widest text-white/90">
-                  {showNumber
-                    ? `•••• ${card.number} •••• ${card.number} •••• ${card.number}`
-                    : `•••• •••• •••• ${card.number}`}
-                </div>
-                <div className="mt-1 text-[10px] uppercase tracking-wider text-white/60">
-                  EXP {card.expiry} · CVV {showNumber ? card.cvv : "•••"}
-                </div>
-              </div>
-              <button
-                onClick={() => setShowNumber((s) => !s)}
-                className="rounded-full bg-white/10 p-1.5 hover:bg-white/20"
-                aria-label="Toggle card details"
-              >
-                {showNumber ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-          </div>
-        </div>
+          <button
+            onClick={() => setShowNumber((s) => !s)}
+            className="absolute bottom-3 right-3 rounded-full bg-white/90 p-2 text-primary shadow-sm hover:bg-white"
+            aria-label="Toggle card details"
+          >
+            {showNumber ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </motion.div>
       </section>
 
@@ -156,7 +133,7 @@ export function Pay8CardScreen() {
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Card details</h2>
         <div className="divide-y divide-border rounded-2xl border border-border bg-card">
-          <DetailRow label="Card number" value={showNumber ? card.fullNumber.replace(/(.{4})/g, "$1 ").trim() : `•••• •••• •••• ${card.number}`} />
+          <DetailRow label="Card number" value={displayNumber} />
           <DetailRow label="Expiry" value={card.expiry} />
           <DetailRow label="CVV" value={showNumber ? card.cvv : "•••"} />
           <DetailRow label="Status" value={card.status === "active" ? "Active" : "Frozen"} />

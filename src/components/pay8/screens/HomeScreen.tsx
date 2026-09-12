@@ -3,13 +3,14 @@
 import { usePay8 } from "@/lib/pay8-store";
 import { usePay8Ui } from "@/lib/pay8-ui-store";
 import { BalanceCard } from "../BalanceCard";
-import { PROMOS } from "@/lib/pay8-utils";
+import { formatCurrency, PROMOS } from "@/lib/pay8-utils";
 import { motion } from "framer-motion";
 import {
   Send, Lightbulb, Coins, Train, Gift, ChevronRight, Zap, Megaphone, TrendingUp,
-  Compass, Grid3X3, Wallet,
+  Compass, Grid3X3, Wallet, Sparkles, TicketPercent,
 } from "lucide-react";
 import type { ScreenId } from "@/lib/types";
+import { Pay8CardArtwork } from "../CardArtwork";
 
 const ADS = [
   {
@@ -85,7 +86,7 @@ export function HomeScreen() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => navigate("save8")}
-            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card p-4 pay8-elev-1 transition-all hover:bg-muted active:scale-[0.98]"
+            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-br from-white via-amber-50 to-[#fff7d8] p-4 pay8-elev-1 transition-all active:scale-[0.98]"
             aria-label="Open Save8"
           >
             <SavingsJarPreview />
@@ -93,10 +94,10 @@ export function HomeScreen() {
 
           <button
             onClick={() => navigate("card")}
-            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl p-4 text-white pay8-gradient-navy pay8-elev-1 transition-all active:scale-[0.98]"
+            className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-2xl bg-[#061a42] p-3 text-white pay8-elev-1 transition-all active:scale-[0.98]"
             aria-label="Open MyCard"
           >
-            <StackedCardPreview />
+            <Pay8CardArtwork compact balance={formatCurrency(card.balance)} status={card.status} showBack={false} className="w-full" />
           </button>
         </div>
       </section>
@@ -113,10 +114,10 @@ export function HomeScreen() {
               <button
                 key={stock.symbol}
                 onClick={() => navigate("verify")}
-                className="pay8-scroll-snap-item min-w-[260px] rounded-2xl border border-border bg-card p-4 text-left transition-all hover:bg-muted/50 active:scale-[0.99]"
+                className="pay8-scroll-snap-item min-w-[260px] overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-white via-slate-50 to-primary/10 p-4 text-left transition-all hover:bg-muted/50 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-xs font-bold text-primary-foreground shadow-sm">
                     {stock.symbol.slice(0, 3)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -143,8 +144,9 @@ export function HomeScreen() {
           {PROMOS.map((p) => (
             <div
               key={p.id}
-              className="pay8-scroll-snap-item relative min-w-[260px] overflow-hidden rounded-2xl border border-primary/15 bg-primary/[0.04] p-4"
+              className="pay8-scroll-snap-item relative min-w-[260px] overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-primary/10 p-4"
             >
+              <TicketPercent className="absolute -right-2 -top-3 h-16 w-16 rotate-12 text-amber-300/50" />
               <div className="text-sm font-semibold text-foreground">{p.title}</div>
               <div className="mt-1 text-xs text-muted-foreground">{p.subtitle}</div>
             </div>
@@ -155,9 +157,9 @@ export function HomeScreen() {
       <FeatureCarousel
         title="Deals"
         items={[
-          { title: "Explore8", subtitle: "Nearby food, transport, and PAY8 partner rewards." },
-          { title: "Paybills", subtitle: "Bill payment deals for utilities, government, and telecom." },
-          { title: "Load8", subtitle: "Mobile load and data bundle promos." },
+          { title: "Explore8", subtitle: "Nearby food, transport, and PAY8 partner rewards.", tone: "blue" },
+          { title: "Paybills", subtitle: "Bill payment deals for utilities, government, and telecom.", tone: "green" },
+          { title: "Load8", subtitle: "Mobile load and data bundle promos.", tone: "amber" },
         ]}
       />
 
@@ -192,22 +194,30 @@ export function HomeScreen() {
   );
 }
 
-function FeatureCarousel({ title, items }: { title: string; items: Array<{ title: string; subtitle: string }> }) {
+function FeatureCarousel({ title, items }: { title: string; items: Array<{ title: string; subtitle: string; tone?: "blue" | "green" | "amber" }> }) {
   return (
     <section>
       <div className="mb-2 flex items-center justify-between px-1">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
       </div>
       <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pay8-scroll-snap">
-        {items.map((item) => (
+        {items.map((item) => {
+          const tone =
+            item.tone === "green"
+              ? "border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-100/70"
+              : item.tone === "amber"
+                ? "border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-100/80"
+                : "border-primary/20 bg-gradient-to-br from-primary/10 via-white to-sky-50";
+          return (
           <button
             key={item.title}
-            className="pay8-scroll-snap-item min-w-[260px] rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-left"
+            className={`pay8-scroll-snap-item relative min-w-[260px] overflow-hidden rounded-2xl border p-4 text-left ${tone}`}
           >
+            <Sparkles className="absolute -right-2 -top-2 h-14 w-14 text-primary/15" />
             <div className="text-sm font-semibold text-foreground">{item.title}</div>
             <div className="mt-1 text-xs text-muted-foreground">{item.subtitle}</div>
           </button>
-        ))}
+        )})}
       </div>
     </section>
   );
@@ -215,27 +225,12 @@ function FeatureCarousel({ title, items }: { title: string; items: Array<{ title
 
 function SavingsJarPreview() {
   return (
-    <div className="relative h-28 w-28">
-      <div className="absolute left-4 top-5 h-20 w-16 rounded-b-3xl rounded-t-xl border-4 border-primary/20 bg-primary/5">
-        <div className="absolute left-3 right-3 top-[-13px] h-4 rounded-t-lg border-4 border-primary/20 border-b-0 bg-card" />
-        <div className="absolute bottom-0 left-0 right-0 h-8 rounded-b-2xl bg-primary/10" />
-        <div className="absolute bottom-4 left-3 h-4 w-4 rounded-full bg-amber-400" />
-        <div className="absolute bottom-6 right-3 h-4 w-4 rounded-full bg-amber-300" />
-        <div className="absolute bottom-9 left-8 h-4 w-4 rounded-full bg-amber-500" />
-      </div>
-    </div>
-  );
-}
-
-function StackedCardPreview() {
-  return (
-    <div className="relative h-28 w-36">
-      <div className="absolute right-2 top-3 h-20 w-28 rotate-6 rounded-2xl bg-white/18" />
-      <div className="absolute left-2 top-6 h-20 w-28 -rotate-6 rounded-2xl bg-white/12" />
-      <div className="absolute left-5 top-4 h-20 w-28 rounded-2xl bg-white/20 p-4">
-        <div className="h-4 w-6 rounded-full bg-gradient-to-br from-amber-200 to-amber-500" />
-        <div className="mt-5 h-2 w-20 rounded-full bg-white/60" />
-        <div className="mt-2 h-1.5 w-12 rounded-full bg-white/35" />
+    <div className="relative flex h-32 w-full items-center justify-center">
+      <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-amber-300/25 blur-2xl" />
+      <div className="absolute -right-8 bottom-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+      <img src="/Save8.png" alt="Save8 jar" className="relative h-24 w-auto object-contain drop-shadow-md" />
+      <div className="absolute bottom-0 left-2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground">
+        Save8
       </div>
     </div>
   );
